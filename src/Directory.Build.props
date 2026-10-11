@@ -28,6 +28,11 @@
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
+  <!-- Only CI downloads the baseline (the last release on nuget.org); locally pass -p:PackageValidationBaselineVersion. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <PackageValidationBaselineVersion>2.1.0</PackageValidationBaselineVersion>
+  </PropertyGroup>
+
   <!-- Without the baseline, the suppressions of its breaking changes (CompatibilitySuppressions.xml) suppress nothing,
        which would fail a local dotnet pack; CI, with the baseline, still fails on a stale one. -->
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
