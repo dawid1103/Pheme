@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Entity Framework Core for Pheme: publishes the domain events of tracked entities when a DbContext saves, and writes integration events to the outbox table of the DbContext, in the same transaction.</Description>
+    <RootNamespace>Pheme</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Not Pheme: the infrastructure layer of an application may use this package but not the Pheme implementation. -->
+    <ProjectReference Include="..\Pheme.Abstractions\Pheme.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

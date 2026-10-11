@@ -1,0 +1,15 @@
+#nullable enable
+Microsoft.Extensions.DependencyInjection.PhemeTestingServiceCollectionExtensions
+Microsoft.Extensions.DependencyInjection.PhemeTestingServiceProviderExtensions
+Pheme.PhemeLayerRule
+Pheme.PhemeLayerRule.Check(System.Reflection.Assembly! assembly) -> void
+Pheme.PhemeLayerRule.Check(System.Reflection.Assembly! assembly, string! namespace) -> void
+override Pheme.PhemeLayerRule.ToString() -> string!
+static Microsoft.Extensions.DependencyInjection.PhemeTestingServiceCollectionExtensions.UsePhemeOutboxForTests(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Extensions.DependencyInjection.PhemeTestingServiceProviderExtensions.DrainOutbox(this System.IServiceProvider! services, int maxRounds = 10, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+static Microsoft.Extensions.DependencyInjection.PhemeTestingServiceProviderExtensions.GetOutboxEvents<TEvent>(this System.IServiceProvider! services, string? source = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<TEvent>!>!
+static Microsoft.Extensions.DependencyInjection.PhemeTestingServiceProviderExtensions.Redeliver<TEvent>(this System.IServiceProvider! services, System.Func<TEvent, bool>! predicate, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
+static Pheme.PhemeLayerRule.Application.get -> Pheme.PhemeLayerRule!
+static Pheme.PhemeLayerRule.Contracts.get -> Pheme.PhemeLayerRule!
+static Pheme.PhemeLayerRule.Domain.get -> Pheme.PhemeLayerRule!
+static Pheme.PhemeLayerRule.Infrastructure.get -> Pheme.PhemeLayerRule!

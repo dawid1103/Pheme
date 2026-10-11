@@ -1,0 +1,58 @@
+name: Docs
+
+# Builds the documentation site from docs/ (mkdocs.yml) with broken links and anchors as errors. Deploying to GitHub
+# Pages is manual while the repository is private: Pages of a private repository needs a paid plan, and the site would
+# be public anyway (docs/development.md, "Documentation").
+on:
+  push:
+    branches: [develop, master]
+    paths: [docs/**, mkdocs.yml, .github/workflows/docs.yml]
+  pull_request:
+    paths: [docs/**, mkdocs.yml, .github/workflows/docs.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # The image pins Material for MkDocs and MkDocs 1.x; the version is the only one to update.
+      - name: Build
+        run: >-
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/docs" squidfunk/mkdocs-material:9.7.7
+          build --strict --site-dir /docs/site
+
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          path: site/
+
+  deploy:
+    name: Deploy
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

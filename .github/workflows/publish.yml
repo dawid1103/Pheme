@@ -1,0 +1,81 @@
+name: Publish
+
+# A tag such as v2.1.0 on a commit of master publishes that version of every package to nuget.org and creates a GitHub
+# Release. The job waits for the approval of the `nuget` environment. nuget.org trusts this workflow through a
+# Trusted Publishing policy (repository, file name and environment), so there is no API key to store.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  publish:
+    name: Test, pack and push
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: nuget
+    permissions:
+      contents: write # the GitHub Release
+      id-token: write # Trusted Publishing: the OIDC token that NuGet/login exchanges for a short-lived API key
+
+    # Actions are pinned to a commit: this job can publish, a moved tag must not change what runs.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # A release is always a commit already on master, never develop or a side branch.
+      - name: Tag on master
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "::error::Tag $GITHUB_REF_NAME does not point to a commit on master."
+            exit 1
+          fi
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+
+      # The assemblies carry the same version as the packages, so it is set for the build too.
+      - name: Version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore -p:Version=$VERSION
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+      - name: Pack
+        run: |
+          for project in src/*/*.csproj; do
+            dotnet pack "$project" --configuration Release --no-build --output artifacts -p:Version=$VERSION
+          done
+
+      # The key lives about an hour, so the login comes right before the push.
+      - name: Log in to nuget.org
+        id: login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      - name: Push
+        run: dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+
+      # A version with a suffix (v2.2.0-preview.1) is marked as a pre-release.
+      - name: GitHub Release
+        run: |
+          if [[ "$VERSION" == *-* ]]; then prerelease=--prerelease; fi
+          gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes ${prerelease:-}
+        env:
+          GH_TOKEN: ${{ github.token }}

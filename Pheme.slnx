@@ -1,0 +1,39 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Pheme.Abstractions/Pheme.Abstractions.csproj" />
+    <Project Path="src/Pheme/Pheme.csproj" />
+    <Project Path="src/Pheme.EntityFrameworkCore/Pheme.EntityFrameworkCore.csproj" />
+    <Project Path="src/Pheme.FluentValidation/Pheme.FluentValidation.csproj" />
+    <Project Path="src/Pheme.Testing/Pheme.Testing.csproj" />
+  </Folder>
+  <Folder Name="/examples/" />
+  <Folder Name="/examples/ModularMonolith/">
+    <Project Path="examples/ModularMonolith/Ordering.Application/Ordering.Application.csproj" />
+    <Project Path="examples/ModularMonolith/Ordering.Domain/Ordering.Domain.csproj" />
+    <Project Path="examples/ModularMonolith/Ordering.Infrastructure/Ordering.Infrastructure.csproj" />
+    <Project Path="examples/ModularMonolith/Shipping/Shipping.csproj" />
+    <Project Path="examples/ModularMonolith/Shop.Api/Shop.Api.csproj" />
+    <Project Path="examples/ModularMonolith/Shop.Common/Shop.Common.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Pheme.EntityFrameworkCore.IntegrationTests/Pheme.EntityFrameworkCore.IntegrationTests.csproj" />
+    <Project Path="tests/Pheme.EntityFrameworkCore.TestFixtures/Pheme.EntityFrameworkCore.TestFixtures.csproj" />
+    <Project Path="tests/Pheme.EntityFrameworkCore.UnitTests/Pheme.EntityFrameworkCore.UnitTests.csproj" />
+    <Project Path="tests/Pheme.Examples.IntegrationTests/Pheme.Examples.IntegrationTests.csproj" />
+    <Project Path="tests/Pheme.Examples.UnitTests/Pheme.Examples.UnitTests.csproj" />
+    <Project Path="tests/Pheme.TestFixtures/Pheme.TestFixtures.csproj" />
+    <Project Path="tests/Pheme.Testing.UnitTests/Pheme.Testing.UnitTests.csproj" />
+    <Project Path="tests/Pheme.UnitTests/Pheme.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="examples/Directory.Build.props" />
+    <File Path="tests/Directory.Build.props" />
+  </Folder>
+</Solution>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Test helpers for Pheme: deterministic delivery of the outbox in integration tests, with failures reported, reading and redelivering the integration events of the outbox, and the layer rules of architecture tests.</Description>
+    <PackageTags>$(PackageTags);outbox;testing;architecture-tests</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pheme\Pheme.csproj" />
+  </ItemGroup>
+
+</Project>

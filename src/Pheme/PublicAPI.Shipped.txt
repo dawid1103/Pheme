@@ -1,0 +1,74 @@
+#nullable enable
+Microsoft.Extensions.DependencyInjection.PhemeHealthChecksBuilderExtensions
+Microsoft.Extensions.DependencyInjection.PhemeServiceCollectionExtensions
+Pheme.IOutboxMaintenance
+Pheme.IOutboxMaintenance.GetParked(int limit = 100, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Pheme.OutboxMessage!>!>!
+Pheme.IOutboxMaintenance.Requeue(System.Guid messageId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Pheme.IOutboxMaintenance.RequeueAllParked(string? source = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
+Pheme.IOutboxRunner
+Pheme.IOutboxRunner.RunOnce(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Pheme.OutboxRunResult!>!
+Pheme.OutboxOptions
+Pheme.OutboxOptions.BatchSize.get -> int
+Pheme.OutboxOptions.BatchSize.set -> void
+Pheme.OutboxOptions.MaxAttempts.get -> int
+Pheme.OutboxOptions.MaxAttempts.set -> void
+Pheme.OutboxOptions.MaxRetryDelay.get -> System.TimeSpan
+Pheme.OutboxOptions.MaxRetryDelay.set -> void
+Pheme.OutboxOptions.OutboxOptions() -> void
+Pheme.OutboxOptions.PollingInterval.get -> System.TimeSpan
+Pheme.OutboxOptions.PollingInterval.set -> void
+Pheme.OutboxOptions.ProcessInBackground.get -> bool
+Pheme.OutboxOptions.ProcessInBackground.set -> void
+Pheme.OutboxOptions.ProcessedRetention.get -> System.TimeSpan?
+Pheme.OutboxOptions.ProcessedRetention.set -> void
+Pheme.OutboxOptions.RetentionLogLevel.get -> Microsoft.Extensions.Logging.LogLevel
+Pheme.OutboxOptions.RetentionLogLevel.set -> void
+Pheme.OutboxOptions.RetryDelay.get -> System.TimeSpan
+Pheme.OutboxOptions.RetryDelay.set -> void
+Pheme.OutboxRunResult
+Pheme.OutboxRunResult.Failed.get -> System.Collections.Generic.IReadOnlyList<Pheme.OutboxMessage!>!
+Pheme.OutboxRunResult.HasMore.get -> bool
+Pheme.OutboxRunResult.Processed.get -> int
+Pheme.PhemeDiagnostics
+Pheme.PhemeOptions
+Pheme.PhemeOptions.AddAssemblyScanner(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection!, System.Reflection.Assembly!>! scanner) -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddBehavior(System.Type! behaviorType) -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddHandlersFromAssemblies(params System.Reflection.Assembly![]! assemblies) -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddHandlersFromAssemblyContaining(params System.Type![]! markerTypes) -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddHandlersFromAssemblyContaining<T>() -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddOutbox() -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddOutbox(System.Action<Pheme.OutboxOptions!>! configure) -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddRequestLogging() -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.AddRequestLogging(System.Action<Pheme.RequestLoggingOptions!>! configure) -> Pheme.PhemeOptions!
+Pheme.PhemeOptions.Services.get -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+Pheme.RequestLoggingOptions
+Pheme.RequestLoggingOptions.ExpectedFailureLevel.get -> Microsoft.Extensions.Logging.LogLevel
+Pheme.RequestLoggingOptions.ExpectedFailureLevel.set -> void
+Pheme.RequestLoggingOptions.IsExpected.get -> System.Func<System.Exception!, bool>!
+Pheme.RequestLoggingOptions.IsExpected.set -> void
+Pheme.RequestLoggingOptions.RequestLoggingOptions() -> void
+Pheme.RequestLoggingOptions.SuccessLevel.get -> Microsoft.Extensions.Logging.LogLevel
+Pheme.RequestLoggingOptions.SuccessLevel.set -> void
+Pheme.RequestLoggingOptions.UnexpectedFailureLevel.get -> Microsoft.Extensions.Logging.LogLevel
+Pheme.RequestLoggingOptions.UnexpectedFailureLevel.set -> void
+const Microsoft.Extensions.DependencyInjection.PhemeHealthChecksBuilderExtensions.OutboxCheckName = "pheme_outbox" -> string!
+const Pheme.OutboxOptions.CategoryName = "Pheme.Outbox" -> string!
+const Pheme.PhemeDiagnostics.ActivitySourceName = "Pheme" -> string!
+const Pheme.PhemeDiagnostics.CommandKind = "command" -> string!
+const Pheme.PhemeDiagnostics.DomainEventKind = "domain_event" -> string!
+const Pheme.PhemeDiagnostics.ErrorTypeTagName = "error.type" -> string!
+const Pheme.PhemeDiagnostics.IntegrationEventKind = "integration_event" -> string!
+const Pheme.PhemeDiagnostics.MessageDurationName = "pheme.message.duration" -> string!
+const Pheme.PhemeDiagnostics.MessageKindTagName = "pheme.message.kind" -> string!
+const Pheme.PhemeDiagnostics.MessageTypeTagName = "pheme.message.type" -> string!
+const Pheme.PhemeDiagnostics.MeterName = "Pheme" -> string!
+const Pheme.PhemeDiagnostics.OutboxMessageStateTagName = "pheme.outbox.message.state" -> string!
+const Pheme.PhemeDiagnostics.OutboxMessagesName = "pheme.outbox.messages" -> string!
+const Pheme.PhemeDiagnostics.OutboxOldestPendingAgeName = "pheme.outbox.oldest_pending.age" -> string!
+const Pheme.PhemeDiagnostics.OutboxParkedState = "parked" -> string!
+const Pheme.PhemeDiagnostics.OutboxPendingState = "pending" -> string!
+const Pheme.PhemeDiagnostics.OutboxSourceTagName = "pheme.outbox.source" -> string!
+const Pheme.PhemeDiagnostics.QueryKind = "query" -> string!
+const Pheme.RequestLoggingOptions.CategoryName = "Pheme.Requests" -> string!
+static Microsoft.Extensions.DependencyInjection.PhemeHealthChecksBuilderExtensions.AddPhemeOutboxCheck(this Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder! builder, System.TimeSpan? maxPendingAge = null, string! name = "pheme_outbox", Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus? failureStatus = null, System.Collections.Generic.IEnumerable<string!>? tags = null) -> Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder!
+static Microsoft.Extensions.DependencyInjection.PhemeServiceCollectionExtensions.AddPheme(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Pheme.PhemeOptions!>! configure) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

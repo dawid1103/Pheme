@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Pheme.Abstractions\Pheme.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Pheme.EntityFrameworkCore\Pheme.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\src\Pheme\Pheme.csproj" />
+    <ProjectReference Include="..\Shop.Common\Shop.Common.csproj" />
+  </ItemGroup>
+
+</Project>

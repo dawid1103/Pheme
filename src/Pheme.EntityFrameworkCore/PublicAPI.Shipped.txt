@@ -1,0 +1,14 @@
+#nullable enable
+Microsoft.EntityFrameworkCore.PhemeModelBuilderExtensions
+Microsoft.Extensions.DependencyInjection.PhemeDbContextServiceCollectionExtensions
+Pheme.PhemeDbContextOptions
+Pheme.PhemeDbContextOptions.CollectDomainEventsFrom<TEntity>(System.Func<TEntity!, System.Collections.Generic.IEnumerable<object!>!>! getDomainEvents, System.Action<TEntity!>! clearDomainEvents) -> Pheme.PhemeDbContextOptions!
+Pheme.PhemeDbContextOptions.MaxDomainEventRounds.get -> int
+Pheme.PhemeDbContextOptions.MaxDomainEventRounds.set -> void
+Pheme.PhemeDbContextOptions.OutboxSource.get -> string?
+Pheme.PhemeDbContextOptions.OutboxSource.set -> void
+Pheme.PhemeDbContextOptions.PhemeDbContextOptions() -> void
+Pheme.PhemeDbContextOptions.UseOutbox<TModule>() -> Pheme.PhemeDbContextOptions!
+static Microsoft.EntityFrameworkCore.PhemeModelBuilderExtensions.AddPhemeOutbox(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+static Microsoft.EntityFrameworkCore.PhemeModelBuilderExtensions.AddPhemeOutbox(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, string! table, string? schema) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+static Microsoft.Extensions.DependencyInjection.PhemeDbContextServiceCollectionExtensions.AddPhemeDbContext<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Pheme.PhemeDbContextOptions!>! configure) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

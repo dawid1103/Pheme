@@ -1,0 +1,42 @@
+# Local notes and files of work sessions, never committed
+SCRATCH/
+_plans/
+
+# Build output
+[Bb]in/
+[Oo]bj/
+artifacts/
+*.nupkg
+*.snupkg
+*.binlog
+
+# Test output
+TestResults/
+coverage*.json
+coverage*.xml
+coverage*.info
+*.coverage
+
+# Documentation site built from mkdocs.yml
+/site/
+
+# Secrets and local configuration
+.env
+*.pfx
+
+# IDEs
+.vs/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+._*
+Thumbs.db

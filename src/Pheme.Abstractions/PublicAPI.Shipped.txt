@@ -1,0 +1,87 @@
+#nullable enable
+Pheme.ICommand
+Pheme.ICommand<TResponse>
+Pheme.ICommandHandler<TCommand, TResponse>
+Pheme.ICommandHandler<TCommand, TResponse>.Handle(TCommand command, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<TResponse>!
+Pheme.ICommandHandler<TCommand>
+Pheme.ICommandHandler<TCommand>.Handle(TCommand command, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Pheme.IDomainEventHandler<TEvent>
+Pheme.IDomainEventHandler<TEvent>.Handle(TEvent domainEvent, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Pheme.IDomainEventPublisher
+Pheme.IDomainEventPublisher.Publish(System.Collections.Generic.IEnumerable<object!>! domainEvents, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Pheme.IDomainEventPublisher.Publish(object! domainEvent, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Pheme.IIntegrationEvent
+Pheme.IIntegrationEvent.EventId.get -> System.Guid
+Pheme.IIntegrationEvent.OccurredOn.get -> System.DateTimeOffset
+Pheme.IIntegrationEventHandler<TEvent>
+Pheme.IIntegrationEventHandler<TEvent>.Handle(TEvent integrationEvent, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Pheme.IMessage
+Pheme.IOutboxMessageFactory
+Pheme.IOutboxMessageFactory.Create(Pheme.IIntegrationEvent! integrationEvent, string! source) -> Pheme.OutboxMessage!
+Pheme.IOutboxStore
+Pheme.IOutboxStore.DeleteProcessedBefore(System.DateTimeOffset processedBefore, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+Pheme.IOutboxStore.GetByType(string! type, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Pheme.OutboxMessage!>!>!
+Pheme.IOutboxStore.GetParked(int limit, int maxAttempts, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Pheme.OutboxMessage!>!>!
+Pheme.IOutboxStore.GetPending(int batchSize, int maxAttempts, System.DateTimeOffset now, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Pheme.OutboxMessage!>!>!
+Pheme.IOutboxStore.GetStats(int maxAttempts, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pheme.OutboxStats!>!
+Pheme.IOutboxStore.MarkAsFailed(System.Guid messageId, string! errorMessage, string? completedHandlers, System.DateTimeOffset? nextAttemptOnUtc, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+Pheme.IOutboxStore.MarkAsProcessed(System.Guid messageId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+Pheme.IOutboxStore.Redeliver(System.Guid messageId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+Pheme.IOutboxStore.Requeue(System.Guid messageId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+Pheme.IOutboxStore.Source.get -> string!
+Pheme.IOutboxWriter<TModule>
+Pheme.IOutboxWriter<TModule>.Add(Pheme.IIntegrationEvent! integrationEvent) -> void
+Pheme.IPipelineBehavior<TMessage, TResponse>
+Pheme.IPipelineBehavior<TMessage, TResponse>.Handle(TMessage message, Pheme.MessageHandlerDelegate<TResponse>! next, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<TResponse>!
+Pheme.IQuery<TResponse>
+Pheme.IQueryHandler<TQuery, TResponse>
+Pheme.IQueryHandler<TQuery, TResponse>.Handle(TQuery query, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<TResponse>!
+Pheme.ISender
+Pheme.ISender.Send(Pheme.ICommand! command, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Pheme.ISender.Send<TResponse>(Pheme.ICommand<TResponse>! command, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TResponse>!
+Pheme.ISender.Send<TResponse>(Pheme.IQuery<TResponse>! query, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TResponse>!
+Pheme.IntegrationEventNameAttribute
+Pheme.IntegrationEventNameAttribute.IntegrationEventNameAttribute(string! name) -> void
+Pheme.IntegrationEventNameAttribute.Name.get -> string!
+Pheme.MessageHandlerDelegate<TResponse>
+Pheme.OutboxMessage
+Pheme.OutboxMessage.AttemptCount.get -> int
+Pheme.OutboxMessage.AttemptCount.set -> void
+Pheme.OutboxMessage.CompletedHandlers.get -> string?
+Pheme.OutboxMessage.CompletedHandlers.set -> void
+Pheme.OutboxMessage.Content.get -> string!
+Pheme.OutboxMessage.Content.set -> void
+Pheme.OutboxMessage.Error.get -> string?
+Pheme.OutboxMessage.Error.set -> void
+Pheme.OutboxMessage.Id.get -> System.Guid
+Pheme.OutboxMessage.Id.set -> void
+Pheme.OutboxMessage.NextAttemptOnUtc.get -> System.DateTimeOffset?
+Pheme.OutboxMessage.NextAttemptOnUtc.set -> void
+Pheme.OutboxMessage.OccurredOnUtc.get -> System.DateTimeOffset
+Pheme.OutboxMessage.OccurredOnUtc.set -> void
+Pheme.OutboxMessage.OutboxMessage() -> void
+Pheme.OutboxMessage.ProcessedOnUtc.get -> System.DateTimeOffset?
+Pheme.OutboxMessage.ProcessedOnUtc.set -> void
+Pheme.OutboxMessage.Source.get -> string!
+Pheme.OutboxMessage.Source.set -> void
+Pheme.OutboxMessage.TraceParent.get -> string?
+Pheme.OutboxMessage.TraceParent.set -> void
+Pheme.OutboxMessage.Type.get -> string!
+Pheme.OutboxMessage.Type.set -> void
+Pheme.OutboxStats
+Pheme.OutboxStats.OldestPendingOccurredOnUtc.get -> System.DateTimeOffset?
+Pheme.OutboxStats.OldestPendingOccurredOnUtc.init -> void
+Pheme.OutboxStats.OutboxStats() -> void
+Pheme.OutboxStats.Parked.get -> int
+Pheme.OutboxStats.Parked.init -> void
+Pheme.OutboxStats.Pending.get -> int
+Pheme.OutboxStats.Pending.init -> void
+Pheme.Unit
+Pheme.Unit.Equals(Pheme.Unit other) -> bool
+Pheme.Unit.Unit() -> void
+override Pheme.Unit.GetHashCode() -> int
+static Pheme.Unit.operator !=(Pheme.Unit left, Pheme.Unit right) -> bool
+static Pheme.Unit.operator ==(Pheme.Unit left, Pheme.Unit right) -> bool
+virtual Pheme.MessageHandlerDelegate<TResponse>.Invoke(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<TResponse>!
+~override Pheme.Unit.Equals(object obj) -> bool
+~override Pheme.Unit.ToString() -> string

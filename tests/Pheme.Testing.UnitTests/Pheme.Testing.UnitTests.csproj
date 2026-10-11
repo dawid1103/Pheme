@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- Not Pheme.*: the layer rules take every Pheme.* assembly for one of Pheme, the fixtures' own too. -->
+    <AssemblyName>LayerRuleTests</AssemblyName>
+    <RootNamespace>Pheme.Testing.UnitTests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Pheme.EntityFrameworkCore\Pheme.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\Pheme.Testing\Pheme.Testing.csproj" />
+    <ProjectReference Include="..\Pheme.TestFixtures\Pheme.TestFixtures.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Pheme works</title>
+<meta name="description" content="Pheme 2.0 in one page: commands and queries, pipeline behaviors, validation, request logging, domain events published on save, integration events through an outbox, layer rules, testing and diagnostics.">
+<style>
+:root {
+    --bg: #ffffff;
+    --surface: #f5f6fa;
+    --surface-strong: #e9ebf3;
+    --fg: #1d2030;
+    --muted: #5b6075;
+    --border: #d5d8e3;
+    --accent: #3f51b5;
+    --accent-soft: #e8eaf6;
+    --teal: #00796b;
+    --teal-soft: #e0f2f1;
+    --amber: #a15c00;
+    --amber-soft: #fff3e0;
+    --red: #c62828;
+    --red-soft: #ffebee;
+    --green: #2e7d32;
+    --green-soft: #e8f5e9;
+    --code-bg: #f3f4f8;
+    --on-bar: #ffffff;
+    color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #16181f;
+        --surface: #1e212b;
+        --surface-strong: #282c39;
+        --fg: #e4e6ef;
+        --muted: #a0a5b9;
+        --border: #363b4b;
+        --accent: #8c9eff;
+        --accent-soft: #262c4d;
+        --teal: #4db6ac;
+        --teal-soft: #17302e;
+        --amber: #ffb74d;
+        --amber-soft: #3a2c17;
+        --red: #ef9a9a;
+        --red-soft: #3b1f22;
+        --green: #81c784;
+        --green-soft: #1d3220;
+        --code-bg: #1b1e27;
+        --on-bar: #10131c;
+        color-scheme: dark;
+    }
+}
+:root[data-theme="dark"] {
+    --bg: #16181f;
+    --surface: #1e212b;
+    --surface-strong: #282c39;
+    --fg: #e4e6ef;
+    --muted: #a0a5b9;
+    --border: #363b4b;
+    --accent: #8c9eff;
+    --accent-soft: #262c4d;
+    --teal: #4db6ac;
+    --teal-soft: #17302e;
+    --amber: #ffb74d;
+    --amber-soft: #3a2c17;
+    --red: #ef9a9a;
+    --red-soft: #3b1f22;
+    --green: #81c784;
+    --green-soft: #1d3220;
+    --code-bg: #1b1e27;
+    --on-bar: #10131c;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--accent); text-underline-offset: 2px; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 0.875em; }
+code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; overflow-wrap: anywhere; }
+pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    line-height: 1.5;
+    margin: 16px 0;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 1em; overflow-wrap: normal; }
+.c { color: var(--muted); }
+
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+header.hero { border-bottom: 1px solid var(--border); background: var(--surface); }
+header.hero .wrap { padding-top: 48px; padding-bottom: 40px; }
+.eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.8rem; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.15; margin: 8px 0 12px; }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 46em; margin: 0; }
+.motto { font-style: italic; color: var(--muted); margin: 16px 0 0; }
+
+nav.toc { border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1; }
+nav.toc ol { list-style: none; margin: 0; padding: 10px 0; display: flex; flex-wrap: wrap; gap: 6px 18px; white-space: nowrap; font-size: 0.92rem; }
+@media (max-width: 720px) { nav.toc ol { flex-wrap: nowrap; overflow-x: auto; } }
+nav.toc a { text-decoration: none; color: var(--muted); }
+nav.toc a:hover { color: var(--accent); }
+
+section { padding: 40px 0 8px; border-bottom: 1px solid var(--border); scroll-margin-top: 48px; }
+section:last-of-type { border-bottom: 0; }
+h2 { font-size: 1.6rem; margin: 0 0 12px; line-height: 1.25; }
+h2 .num { color: var(--accent); margin-right: 8px; }
+h3 { font-size: 1.15rem; margin: 28px 0 8px; }
+p, ul, ol { max-width: 46em; }
+li { margin: 4px 0; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 20px 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.card h3 { margin: 0 0 4px; font-size: 1rem; }
+.card p { margin: 0; color: var(--muted); font-size: 0.93rem; }
+.card a { text-decoration: none; }
+
+.table-scroll { overflow-x: auto; margin: 16px 0; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.93rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+th { background: var(--surface); font-weight: 600; }
+td:first-child code { white-space: nowrap; overflow-wrap: normal; }
+
+figure { margin: 24px 0; }
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+.diagram svg { display: block; width: 100%; height: auto; min-width: 560px; margin: 0 auto; }
+figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 8px; max-width: 46em; }
+
+.note { border-left: 4px solid var(--amber); background: var(--amber-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; max-width: 46em; margin: 16px 0; }
+.note p { margin: 0; }
+.more { font-size: 0.92rem; color: var(--muted); }
+
+.steps { counter-reset: step; list-style: none; padding: 0; }
+.steps > li { counter-increment: step; position: relative; padding-left: 40px; margin: 12px 0; }
+.steps > li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    font-weight: 700; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+}
+
+footer { padding: 32px 0 48px; color: var(--muted); font-size: 0.92rem; }
+
+/* SVG */
+.diagram text { fill: var(--fg); font: 13px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+.diagram text.small { font-size: 11.5px; fill: var(--muted); }
+.diagram text.title { font-weight: 600; }
+.diagram text.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.diagram .box { fill: var(--bg); stroke: var(--border); stroke-width: 1.5; }
+.diagram .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.diagram .box-teal { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+.diagram .box-amber { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+.diagram .box-red { fill: var(--red-soft); stroke: var(--red); stroke-width: 1.5; }
+.diagram .box-green { fill: var(--green-soft); stroke: var(--green); stroke-width: 1.5; }
+.diagram .line { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.diagram .line-accent { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.diagram .line-red { stroke: var(--red); stroke-width: 1.5; fill: none; }
+.diagram .dash { stroke-dasharray: 5 4; }
+.diagram .arrow { fill: var(--muted); }
+.diagram .arrow-accent { fill: var(--accent); }
+.diagram .arrow-red { fill: var(--red); }
+.diagram .bar { fill: var(--accent); }
+.diagram .bar-teal { fill: var(--teal); }
+.diagram .bar-amber { fill: var(--amber); }
+.diagram text.on-bar { fill: var(--on-bar); }
+.diagram .bar-muted { fill: var(--surface-strong); stroke: var(--border); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+    <div class="wrap">
+        <p class="eyebrow">Pheme 2.0 · .NET 10</p>
+        <h1>How Pheme works</h1>
+        <p class="lead">Lightweight in-process messaging for .NET: commands and queries with one handler each, an ordered
+            pipeline of behaviors, domain events published when Entity Framework Core saves, and integration events
+            delivered through an outbox. This page shows what happens at each step; the
+            <a href="./">documentation</a> has the details.</p>
+        <p class="motto">Messages travel. Pheme carries the word.</p>
+    </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+    <div class="wrap">
+        <ol>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#registration">Registration</a></li>
+            <li><a href="#sending">Sending</a></li>
+            <li><a href="#behaviors">Behaviors</a></li>
+            <li><a href="#domain-events">Domain events</a></li>
+            <li><a href="#outbox">Outbox</a></li>
+            <li><a href="#layers">Layers</a></li>
+            <li><a href="#testing">Testing</a></li>
+            <li><a href="#diagnostics">Diagnostics</a></li>
+            <li><a href="#configuration">Configuration</a></li>
+            <li><a href="#limitations">Limitations</a></li>
+        </ol>
+    </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ OVERVIEW -->
+<section id="overview">
+    <h2><span class="num">1</span>What Pheme does</h2>
+    <p>Pheme moves messages inside one application. Each kind of message has its own rules, and every rule that can be
+        checked is checked when the application starts, not on the first request.</p>
+
+    <div class="cards">
+        <div class="card">
+            <h3>Commands and queries</h3>
+            <p>Sent through <code>ISender</code> to exactly one handler. A command changes state, a query reads it.</p>
+        </div>
+        <div class="card">
+            <h3>Pipeline behaviors</h3>
+            <p>Cross-cutting code around every message, in the order it was added: authorization, transactions, caching.</p>
+        </div>
+        <div class="card">
+            <h3>Validation</h3>
+            <p>FluentValidation as a ready-made behavior; validators are found next to the handlers.</p>
+        </div>
+        <div class="card">
+            <h3>Request logging</h3>
+            <p>One log per message with its outcome and time; expected failures without a stack trace.</p>
+        </div>
+        <div class="card">
+            <h3>Domain events</h3>
+            <p>Published when a <code>DbContext</code> saves, before it writes, so the handlers' changes join the same
+                transaction.</p>
+        </div>
+        <div class="card">
+            <h3>Integration events</h3>
+            <p>Written to an outbox table with the change, delivered after the commit, at least once, with retries and
+                parking.</p>
+        </div>
+        <div class="card">
+            <h3>Testing helpers</h3>
+            <p>Deliver the outbox when a test says so, read and redeliver events, check layers in architecture tests.</p>
+        </div>
+        <div class="card">
+            <h3>Tracing and metrics</h3>
+            <p>A span and a duration for every message, event and delivery, through <code>System.Diagnostics</code>.</p>
+        </div>
+    </div>
+
+    <p>No reflection per call, no source generators, <code>internal</code> handlers welcome. The domain never references
+        Pheme: domain events are the application's own types.</p>
+
+    <h3>Five packages, one per layer</h3>
+    <div class="table-scroll">
+        <table>
+            <thead><tr><th>Package</th><th>Contents</th><th>Used by</th></tr></thead>
+            <tbody>
+                <tr><td><code>Pheme.Abstractions</code></td><td>message, handler, behavior and outbox contracts; no dependencies</td><td>application layer, contracts</td></tr>
+                <tr><td><code>Pheme</code></td><td><code>AddPheme</code>, sender, pipeline, request logging, domain event publisher, outbox processor and health check, diagnostics</td><td>composition root; infrastructure, to register a module's handlers</td></tr>
+                <tr><td><code>Pheme.FluentValidation</code></td><td>validation behavior and validator registration</td><td>composition root</td></tr>
+                <tr><td><code>Pheme.EntityFrameworkCore</code></td><td>domain events published on save, outbox table, writer and store</td><td>infrastructure layer</td></tr>
+                <tr><td><code>Pheme.Testing</code></td><td>outbox helpers for integration tests, layer rules for architecture tests</td><td>test projects</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="more">More: <a href="guide/01-installation/">Installation</a> ·
+        <a href="guide/02-getting-started/">Getting started</a></p>
+</section>
+
+<!-- ============================================================ REGISTRATION -->
+<section id="registration">
+    <h2><span class="num">2</span>Registration and the start-up check</h2>
+    <p>Pheme is registered with <code>AddPheme</code>, naming the assemblies that hold the handlers. In a modular
+        monolith each module registers its own handlers from its infrastructure, and the composition root adds what all
+        modules share - the pipeline, the outbox and the contracts:</p>
+<pre><code><span class="c">// Ordering.Infrastructure, in the module's registration</span>
+services.AddPheme(pheme =&gt; pheme.AddHandlersFromAssemblyContaining&lt;OrderingModule&gt;());
+
+<span class="c">// Shop.Api: the modules, then the pipeline</span>
+builder.Services.AddOrdering(connectionString);
+builder.Services.AddShipping(connectionString);
+builder.Services.AddPheme(options =&gt; options
+    .AddHandlersFromAssemblyContaining&lt;OrderPlacedIntegrationEvent&gt;()   <span class="c">// the contracts</span>
+    .AddOutbox()
+    .AddRequestLogging()
+    .AddFluentValidation());</code></pre>
+
+    <ul>
+        <li><strong>Calls add up.</strong> Every call shares one registry and one pipeline, in call order; an assembly
+            is scanned once.</li>
+        <li><strong>Scanning</strong> finds concrete handler classes, <code>internal</code> and nested ones too, in
+            the order of their full names, and registers them as transient, so a handler may depend on a scoped
+            <code>DbContext</code>. A handler registered by hand before <code>AddPheme</code> keeps its registration.</li>
+        <li><strong>Assemblies are named explicitly</strong>, never discovered: <code>AppDomain</code> knows only the
+            assemblies loaded so far.</li>
+    </ul>
+
+    <h3>What fails the start</h3>
+    <p>When the host starts - or, without a host, when <code>ISender</code> is first resolved - every configuration
+        error is reported in one <code>OptionsValidationException</code>, one line per problem:</p>
+    <ul>
+        <li>a message without a handler (with the assemblies searched), with two handlers, or implementing two of
+            <code>ICommand</code>, <code>ICommand&lt;T&gt;</code>, <code>IQuery&lt;T&gt;</code>;</li>
+        <li>a behavior registered as the interface instead of through <code>AddBehavior</code>;</li>
+        <li>a domain event handler that can never run (of an interface or abstract event type);</li>
+        <li>a <code>DbContext</code> that collects domain events but whose options are not scoped (pooling, a singleton
+            factory);</li>
+        <li>outbox mistakes: integration event handlers without <code>AddOutbox</code>, an outbox without a store,
+            <code>UseOutbox</code> without <code>AddOutbox</code>, one module or source in two contexts, an integration
+            event without a handler, an event type that cannot be delivered.</li>
+    </ul>
+    <p class="more">More: <a href="guide/03-commands-and-queries/">Commands and queries</a></p>
+</section>
+
+<!-- ============================================================ SENDING -->
+<section id="sending">
+    <h2><span class="num">3</span>Sending a message</h2>
+<pre><code>public sealed record PlaceOrderCommand(string Product, int Quantity) : ICommand&lt;Guid&gt;;
+
+internal sealed class PlaceOrderCommandHandler(IOrderingDbContext db) : ICommandHandler&lt;PlaceOrderCommand, Guid&gt;
+{
+    public async Task&lt;Guid&gt; Handle(PlaceOrderCommand command, CancellationToken cancellationToken)
+    {
+        Order order = Order.Place(command.Product, command.Quantity);
+        db.Orders.Add(order);
+        await db.SaveChangesAsync(cancellationToken);
+        return order.Id;
+    }
+}
+
+Guid id = await sender.Send(new PlaceOrderCommand("Lamp", 2), cancellationToken);</code></pre>
+
+    <figure>
+        <div class="diagram">
+            <svg viewBox="0 0 760 224" role="img" aria-labelledby="send-title">
+                <title id="send-title">The path of ISender.Send: the scoped sender takes a cached wrapper for the message type, which starts a span, runs the behaviors and finally resolves and calls the handler.</title>
+                <defs>
+                    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker>
+                    <marker id="arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-accent"/></marker>
+                    <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-red"/></marker>
+                </defs>
+                <!-- span over the wrapper, the behaviors and the handler -->
+                <rect x="330" y="8" width="420" height="30" rx="6" class="box-amber"/>
+                <text x="540" y="28" text-anchor="middle">span + <tspan class="mono">pheme.message.duration</tspan> around all of this</text>
+                <line x1="330" y1="38" x2="330" y2="52" class="line dash"/>
+                <line x1="750" y1="38" x2="750" y2="52" class="line dash"/>
+
+                <rect x="10" y="56" width="130" height="70" rx="8" class="box"/>
+                <text x="75" y="84" text-anchor="middle" class="title">Caller</text>
+                <text x="75" y="104" text-anchor="middle" class="small">controller, endpoint,</text>
+                <text x="75" y="118" text-anchor="middle" class="small">hosted service scope</text>
+
+                <rect x="170" y="56" width="130" height="70" rx="8" class="box-accent"/>
+                <text x="235" y="84" text-anchor="middle" class="title">ISender</text>
+                <text x="235" y="104" text-anchor="middle" class="small">scoped: resolves</text>
+                <text x="235" y="118" text-anchor="middle" class="small">from the caller's scope</text>
+
+                <rect x="330" y="56" width="130" height="70" rx="8" class="box-accent"/>
+                <text x="395" y="84" text-anchor="middle" class="title">Wrapper</text>
+                <text x="395" y="104" text-anchor="middle" class="small">one per message type,</text>
+                <text x="395" y="118" text-anchor="middle" class="small">built once, cached</text>
+
+                <rect x="490" y="56" width="120" height="70" rx="8" class="box-accent"/>
+                <text x="550" y="84" text-anchor="middle" class="title">Behaviors</text>
+                <text x="550" y="104" text-anchor="middle" class="small">outermost first,</text>
+                <text x="550" y="118" text-anchor="middle" class="small">each calls next</text>
+
+                <rect x="640" y="56" width="110" height="70" rx="8" class="box-teal"/>
+                <text x="695" y="84" text-anchor="middle" class="title">Handler</text>
+                <text x="695" y="104" text-anchor="middle" class="small">transient,</text>
+                <text x="695" y="118" text-anchor="middle" class="small">resolved last</text>
+
+                <line x1="140" y1="91" x2="168" y2="91" class="line" marker-end="url(#arr)"/>
+                <line x1="300" y1="91" x2="328" y2="91" class="line" marker-end="url(#arr)"/>
+                <line x1="460" y1="91" x2="488" y2="91" class="line" marker-end="url(#arr)"/>
+                <line x1="610" y1="91" x2="638" y2="91" class="line" marker-end="url(#arr)"/>
+
+                <path d="M695,126 L695,176 L90,176 L90,128" class="line-accent" marker-end="url(#arr-accent)"/>
+                <text x="392" y="168" text-anchor="middle" class="small">the response, back out through every behavior</text>
+                <path d="M710,126 L710,212 L60,212 L60,128" class="line-red dash" marker-end="url(#arr-red)"/>
+                <text x="392" y="204" text-anchor="middle" class="small">or the exception, unchanged - never wrapped</text>
+            </svg>
+        </div>
+        <figcaption>The first <code>Send</code> of a message type builds its wrapper by reflection; every later one takes
+            it from a static cache and runs strongly typed code. The handler is resolved in the innermost step, so a
+            behavior that answers by itself - a failed validation, a cache hit - never creates it.</figcaption>
+    </figure>
+
+    <ul>
+        <li><strong>Scoped sender.</strong> <code>ISender</code> belongs to a scope, so handlers get the request's
+            <code>DbContext</code>. A singleton that depends on it fails scope validation instead of silently using the
+            root provider; code outside a request creates a scope first.</li>
+        <li><strong>Exceptions reach the caller unchanged</strong> - never a <code>TargetInvocationException</code> or
+            an <code>AggregateException</code>.</li>
+        <li><strong><code>Task</code>, not <code>ValueTask</code>,</strong> and no <code>Async</code> suffix:
+            <code>Send</code>, <code>Publish</code>, <code>Handle</code>.</li>
+    </ul>
+</section>
+
+<!-- ============================================================ BEHAVIORS -->
+<section id="behaviors">
+    <h2><span class="num">4</span>Pipeline behaviors</h2>
+    <p>A behavior wraps the handling of every message its generic constraints accept: <code>ICommand</code>,
+        <code>ICommand&lt;TResponse&gt;</code>, <code>IQuery&lt;TResponse&gt;</code>, <code>IMessage</code> for all, or a
+        marker interface of the application. It is added as an open generic type and closed for each message that
+        fits.</p>
+<pre><code>options.AddRequestLogging(logging =&gt; logging.IsExpected = e =&gt; e is ValidationException);   <span class="c">// always outermost</span>
+options.AddBehavior(typeof(AuthorizationBehavior&lt;,&gt;));
+options.AddBehavior(typeof(CommandTimingBehavior&lt;&gt;));      <span class="c">// commands without a response</span>
+options.AddBehavior(typeof(CommandTimingBehavior&lt;,&gt;));     <span class="c">// commands with one</span>
+options.AddFluentValidation();                             <span class="c">// validates here, in order</span>
+options.AddBehavior(typeof(TransactionBehavior&lt;&gt;));</code></pre>
+
+    <figure>
+        <div class="diagram">
+            <svg viewBox="0 0 760 300" role="img" aria-labelledby="onion-title">
+                <title id="onion-title">Behaviors nest like an onion: request logging outermost, then the application's behaviors in the order they were added, validation where it was added, and the handler in the middle. Code before next runs on the way in, code after next on the way out.</title>
+                <rect x="10" y="10" width="740" height="280" rx="12" class="box-amber"/>
+                <text x="26" y="34" class="title">Request logging</text>
+                <text x="734" y="34" text-anchor="end" class="small">always outermost: its time covers everything inside</text>
+
+                <rect x="40" y="48" width="680" height="226" rx="10" class="box"/>
+                <text x="56" y="72" class="title">AuthorizationBehavior</text>
+                <text x="704" y="72" text-anchor="end" class="small">first AddBehavior</text>
+
+                <rect x="70" y="86" width="620" height="172" rx="10" class="box"/>
+                <text x="86" y="110" class="title">CommandTimingBehavior</text>
+                <text x="674" y="110" text-anchor="end" class="small">commands only, by its constraint</text>
+
+                <rect x="100" y="124" width="560" height="118" rx="10" class="box-accent"/>
+                <text x="116" y="148" class="title">Validation</text>
+                <text x="644" y="148" text-anchor="end" class="small">a failure stops here: no handler, no transaction</text>
+
+                <rect x="130" y="162" width="500" height="64" rx="10" class="box"/>
+                <text x="146" y="186" class="title">TransactionBehavior</text>
+                <text x="614" y="186" text-anchor="end" class="small">for the commands that ask for it</text>
+
+                <rect x="300" y="196" width="160" height="24" rx="6" class="box-teal"/>
+                <text x="380" y="213" text-anchor="middle" class="title">Handler</text>
+            </svg>
+        </div>
+        <figcaption>Order is the order of <code>AddBehavior</code>, the first one outermost, independent of the container.
+            Each behavior's code before <code>await next(...)</code> runs on the way in, the code after it on the way
+            out. Behaviors are resolved from the caller's scope, so they may take a <code>DbContext</code>.</figcaption>
+    </figure>
+
+    <h3>Ready-made behaviors</h3>
+    <ul>
+        <li><strong>Validation</strong> (<code>Pheme.FluentValidation</code>) runs the validators of a message one after
+            another - they often share a scoped <code>DbContext</code> - and throws all failures together, as
+            FluentValidation's exception or the application's own, made by a factory.</li>
+        <li><strong>Request logging</strong> writes one log per message in the category <code>Pheme.Requests</code>:
+            handled on <code>Debug</code>, an expected failure (<code>IsExpected</code>, or cancellation) on
+            <code>Information</code> with its message, anything else on <code>Error</code> with the exception. Off until
+            <code>AddRequestLogging</code> is called.</li>
+    </ul>
+    <p class="more">Recipes, each with a use case in the example: <a href="recipes/transactions/">transactions</a> ·
+        <a href="recipes/authorization/">authorization</a> · <a href="recipes/caching-queries/">caching queries</a> ·
+        <a href="recipes/idempotent-commands/">idempotent commands</a> · <a href="recipes/audit-trail/">audit trail</a></p>
+</section>
+
+<!-- ============================================================ DOMAIN EVENTS -->
+<section id="domain-events">
+    <h2><span class="num">5</span>Domain events, published on save</h2>
+    <p>Domain events are the application's types; entities collect them the way the application likes - a base class
+        or an interface of its own domain. Pheme is told, per <code>DbContext</code>, how to read and clear them:</p>
+<pre><code>services.AddPhemeDbContext&lt;ShippingDbContext&gt;(pheme =&gt;
+    pheme.CollectDomainEventsFrom&lt;AggregateRoot&gt;(
+        entity =&gt; entity.DomainEvents,           <span class="c">// the events not published yet, in order</span>
+        entity =&gt; entity.ClearDomainEvents()));  <span class="c">// forgets them, right before they are published</span>
+
+services.AddDbContext&lt;ShippingDbContext&gt;(options =&gt; options.UseNpgsql(connectionString));</code></pre>
+    <p>An EF Core interceptor - no base <code>DbContext</code> - then publishes the events whenever the context saves.
+        Handlers implement <code>IDomainEventHandler&lt;TEvent&gt;</code>, any number per event, and only change
+        entities; the save that published the event stores their changes.</p>
+
+    <figure>
+        <div class="diagram">
+            <svg viewBox="0 0 760 370" role="img" aria-labelledby="rounds-title">
+                <title id="rounds-title">SaveChangesAsync runs rounds: collect and clear the events of tracked entities, publish them to their handlers in order; if handlers raised further events, run another round, up to MaxDomainEventRounds; then EF Core writes everything in one transaction. A handler exception stops everything and nothing is saved.</title>
+                <defs>
+                    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker>
+                    <marker id="arr2-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-red"/></marker>
+                </defs>
+                <rect x="230" y="10" width="300" height="40" rx="20" class="box-accent"/>
+                <text x="380" y="35" text-anchor="middle" class="title">await db.SaveChangesAsync()</text>
+                <line x1="380" y1="50" x2="380" y2="74" class="line" marker-end="url(#arr2)"/>
+
+                <rect x="150" y="76" width="460" height="132" rx="10" class="box"/>
+                <text x="166" y="100" class="title">One round</text>
+                <text x="166" y="124">1. Tracked entities matching a <tspan class="mono">CollectDomainEventsFrom</tspan> type,</text>
+                <text x="184" y="142" class="small">in the order of ChangeTracker.Entries()</text>
+                <text x="166" y="164">2. Read each entity's events, then clear them</text>
+                <text x="166" y="186">3. Publish one after another; each event's handlers in order, awaited</text>
+
+                <line x1="380" y1="208" x2="380" y2="232" class="line" marker-end="url(#arr2)"/>
+                <path d="M380,234 L480,262 L380,290 L280,262 Z" class="box-amber"/>
+                <text x="380" y="259" text-anchor="middle" class="small">handlers raised</text>
+                <text x="380" y="273" text-anchor="middle" class="small">new events?</text>
+
+                <!-- yes loop -->
+                <path d="M480,262 L660,262 L660,142 L612,142" class="line" marker-end="url(#arr2)"/>
+                <text x="652" y="226" text-anchor="end" class="small">yes: next round, at most 10</text>
+                <text x="652" y="241" text-anchor="end" class="small">(MaxDomainEventRounds)</text>
+
+                <!-- no -->
+                <line x1="380" y1="290" x2="380" y2="314" class="line" marker-end="url(#arr2)"/>
+                <text x="390" y="306" class="small">no</text>
+                <rect x="130" y="316" width="500" height="44" rx="10" class="box-green"/>
+                <text x="380" y="336" text-anchor="middle" class="title">EF Core writes it all in one transaction</text>
+                <text x="380" y="352" text-anchor="middle" class="small">the entities, the handlers' changes, the outbox messages they added</text>
+
+                <!-- exception -->
+                <path d="M150,142 L60,142 L60,300" class="line-red dash" marker-end="url(#arr2-red)"/>
+                <rect x="10" y="302" width="104" height="54" rx="8" class="box-red"/>
+                <text x="62" y="324" text-anchor="middle" class="small">a handler throws:</text>
+                <text x="62" y="340" text-anchor="middle" class="small">nothing is saved</text>
+            </svg>
+        </div>
+        <figcaption>The events are published before EF Core writes anything. A round that never ends - handlers raising
+            each other's events - throws after <code>MaxDomainEventRounds</code>.</figcaption>
+    </figure>
+
+    <h3>Dispatch rules</h3>
+    <ul>
+        <li><strong>Exact type.</strong> An event reaches the handlers of its runtime type only. For every event of a
+            kind, such as auditing, register an open generic handler by hand.</li>
+        <li><strong>In order.</strong> Handlers registered by hand before <code>AddPheme</code> first, then the scanned
+            ones by full type name.</li>
+        <li><strong>The first exception stops</strong> the remaining handlers and events, and the save does not
+            happen.</li>
+        <li><strong>One transaction covers one <code>DbContext</code>.</strong> A handler that changes another module's
+            context writes in another transaction - between modules, use integration events.</li>
+        <li><strong>No saving from inside.</strong> A handler that saves the context publishing its event throws: that
+            save would commit part of the change on its own. A synchronous <code>SaveChanges</code> with events pending
+            throws too.</li>
+    </ul>
+    <div class="note"><p>A domain event handler runs before the save, which may still fail. An e-mail or a call to
+        another system belongs to an integration event, delivered after the commit.</p></div>
+    <p class="more">More: <a href="guide/07-domain-events/">Domain events</a></p>
+</section>
+
+<!-- ============================================================ OUTBOX -->
+<section id="outbox">
+    <h2><span class="num">6</span>Integration events and the outbox</h2>
+    <p>An integration event (<code>IIntegrationEvent</code>) is written to the outbox table of its module in the same
+        transaction as the change that raised it, and delivered later, in the background, to its
+        <code>IIntegrationEventHandler&lt;TEvent&gt;</code> handlers. If the save fails, the event was never
+        written; once it succeeds, the event will be delivered.</p>
+<pre><code><span class="c">// OnModelCreating of the module's DbContext</span>
+modelBuilder.AddPhemeOutbox();                       <span class="c">// table outbox_messages in the default schema</span>
+
+<span class="c">// infrastructure of the module</span>
+services.AddPhemeDbContext&lt;OrderingDbContext&gt;(pheme =&gt; pheme.UseOutbox&lt;OrderingModule&gt;());
+
+<span class="c">// a handler in the application layer - it never sees the DbContext</span>
+outbox.Add(new OrderPlacedIntegrationEvent(Guid.CreateVersion7(), timeProvider.GetUtcNow(), order.Id));</code></pre>
+
+    <figure>
+        <div class="diagram">
+            <svg viewBox="0 0 760 330" role="img" aria-labelledby="outbox-title">
+                <title id="outbox-title">An outbox message is written with the change and becomes pending. The processor delivers due messages one by one, each handler in a scope of its own. When all handlers completed, the message is processed and deleted after the retention. A failure records the error and the completed handlers and schedules the next attempt with a growing delay; after MaxAttempts the message is parked until someone requeues it.</title>
+                <defs>
+                    <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker>
+                    <marker id="arr3-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow-red"/></marker>
+                </defs>
+                <!-- request transaction -->
+                <rect x="10" y="20" width="200" height="120" rx="10" class="box-accent"/>
+                <text x="110" y="44" text-anchor="middle" class="title">The request's save</text>
+                <rect x="26" y="58" width="168" height="30" rx="6" class="box"/>
+                <text x="110" y="78" text-anchor="middle">the order</text>
+                <rect x="26" y="96" width="168" height="30" rx="6" class="box"/>
+                <text x="110" y="116" text-anchor="middle">outbox message</text>
+                <text x="110" y="158" text-anchor="middle" class="small">one transaction, one commit</text>
+
+                <line x1="210" y1="80" x2="268" y2="80" class="line" marker-end="url(#arr3)"/>
+
+                <!-- pending -->
+                <rect x="270" y="50" width="130" height="60" rx="30" class="box"/>
+                <text x="335" y="76" text-anchor="middle" class="title">Pending</text>
+                <text x="335" y="94" text-anchor="middle" class="small">due now or later</text>
+
+                <line x1="400" y1="80" x2="458" y2="80" class="line" marker-end="url(#arr3)"/>
+                <text x="429" y="70" text-anchor="middle" class="small">polled</text>
+
+                <!-- delivery -->
+                <rect x="460" y="20" width="150" height="120" rx="10" class="box-teal"/>
+                <text x="535" y="44" text-anchor="middle" class="title">Delivery</text>
+                <text x="535" y="66" text-anchor="middle" class="small">handlers that have not</text>
+                <text x="535" y="80" text-anchor="middle" class="small">completed yet, one by one,</text>
+                <text x="535" y="94" text-anchor="middle" class="small">each in its own DI scope;</text>
+                <text x="535" y="108" text-anchor="middle" class="small">the outcome saved in</text>
+                <text x="535" y="122" text-anchor="middle" class="small">another new scope</text>
+
+                <line x1="610" y1="60" x2="638" y2="60" class="line" marker-end="url(#arr3)"/>
+                <rect x="640" y="30" width="110" height="60" rx="30" class="box-green"/>
+                <text x="695" y="56" text-anchor="middle" class="title">Processed</text>
+                <text x="695" y="74" text-anchor="middle" class="small">all handlers done</text>
+                <line x1="695" y1="90" x2="695" y2="128" class="line dash" marker-end="url(#arr3)"/>
+                <text x="695" y="146" text-anchor="middle" class="small">deleted after</text>
+                <text x="695" y="160" text-anchor="middle" class="small">30 days (retention)</text>
+
+                <!-- failure -->
+                <line x1="535" y1="140" x2="535" y2="194" class="line-red" marker-end="url(#arr3-red)"/>
+                <text x="545" y="172" class="small">a handler failed</text>
+                <rect x="430" y="196" width="170" height="62" rx="10" class="box-amber"/>
+                <text x="515" y="218" text-anchor="middle" class="title">Retry later</text>
+                <text x="515" y="236" text-anchor="middle" class="small">error and completed</text>
+                <text x="515" y="250" text-anchor="middle" class="small">handlers recorded</text>
+                <path d="M430,227 L360,227 L360,112" class="line" marker-end="url(#arr3)"/>
+                <text x="368" y="170" class="small">after a growing delay</text>
+
+                <path d="M515,258 L515,294 L202,294" class="line-red" marker-end="url(#arr3-red)"/>
+                <text x="360" y="288" text-anchor="middle" class="small">attempt 10 failed</text>
+                <rect x="40" y="266" width="160" height="56" rx="28" class="box-red"/>
+                <text x="120" y="290" text-anchor="middle" class="title">Parked</text>
+                <text x="120" y="308" text-anchor="middle" class="small">kept with its error</text>
+
+                <path d="M120,266 L120,200 L310,200 L310,112" class="line dash" marker-end="url(#arr3)"/>
+                <text x="128" y="216" class="small">requeued after a fix:</text>
+                <text x="128" y="230" class="small">IOutboxMaintenance</text>
+            </svg>
+        </div>
+        <figcaption>At least once: a message is processed only when all its handlers completed, and the next attempt calls
+            only the handlers that have not. A crash between a handler's work and the saved outcome repeats it, so
+            handlers should be idempotent - by <code>EventId</code>, for example.</figcaption>
+    </figure>
+
+    <h3>Retries with a growing delay</h3>
+    <p>A failed message waits <code>RetryDelay</code> (10 s), twice as long after each further failure, at most
+        <code>MaxRetryDelay</code> (15 min). After <code>MaxAttempts</code> (10) failed attempts - about 50 minutes of
+        failures with the defaults - it is parked. A short outage of a mail server is outlasted, and a message that keeps
+        failing does not hold up the others: a message is not read again before its due time.</p>
+    <figure>
+        <div class="diagram">
+            <svg viewBox="0 0 760 270" role="img" aria-labelledby="retry-title">
+                <title id="retry-title">The wait after each failed attempt with the default options: 10, 20, 40, 80, 160, 320 and 640 seconds, then 15 minutes twice; the tenth failure parks the message.</title>
+                <text x="10" y="18" class="small">wait after the failed attempt</text>
+                <!-- scale: 900 s = 520 px, x0 = 150 -->
+                <g>
+                    <text x="140" y="44" text-anchor="end">attempt 1</text><rect x="150" y="32" width="5.8" height="16" rx="2" class="bar"/><text x="162" y="44" class="small">10 s</text>
+                    <text x="140" y="68" text-anchor="end">attempt 2</text><rect x="150" y="56" width="11.6" height="16" rx="2" class="bar"/><text x="168" y="68" class="small">20 s</text>
+                    <text x="140" y="92" text-anchor="end">attempt 3</text><rect x="150" y="80" width="23.1" height="16" rx="2" class="bar"/><text x="180" y="92" class="small">40 s</text>
+                    <text x="140" y="116" text-anchor="end">attempt 4</text><rect x="150" y="104" width="46.2" height="16" rx="2" class="bar"/><text x="203" y="116" class="small">80 s</text>
+                    <text x="140" y="140" text-anchor="end">attempt 5</text><rect x="150" y="128" width="92.4" height="16" rx="2" class="bar"/><text x="249" y="140" class="small">2 min 40 s</text>
+                    <text x="140" y="164" text-anchor="end">attempt 6</text><rect x="150" y="152" width="184.9" height="16" rx="2" class="bar"/><text x="342" y="164" class="small">5 min 20 s</text>
+                    <text x="140" y="188" text-anchor="end">attempt 7</text><rect x="150" y="176" width="369.8" height="16" rx="2" class="bar"/><text x="527" y="188" class="small">10 min 40 s</text>
+                    <text x="140" y="212" text-anchor="end">attempt 8</text><rect x="150" y="200" width="520" height="16" rx="2" class="bar-amber"/><text x="677" y="212" class="small">15 min (cap)</text>
+                    <text x="140" y="236" text-anchor="end">attempt 9</text><rect x="150" y="224" width="520" height="16" rx="2" class="bar-amber"/><text x="677" y="236" class="small">15 min (cap)</text>
+                    <text x="140" y="260" text-anchor="end">attempt 10</text><text x="150" y="260" class="small">failed: parked</text>
+                </g>
+            </svg>
+        </div>
+        <figcaption>The due time is stored with the message (<code>NextAttemptOnUtc</code>). Messages of a store are tried
+            in the order they occurred, so a waiting message may be overtaken by the ones after it.</figcaption>
+    </figure>
+
+    <h3>Layouts and guarantees</h3>
+    <ul>
+        <li><strong>One outbox per <code>DbContext</code>.</strong> A context per module, each with its own table;
+            modules sharing one context, each with its own writer; or an application without modules. A writer writes
+            only to its own context - another one would be another transaction.</li>
+        <li><strong>The stored name</strong> is <code>[IntegrationEventName("ordering.order-placed")]</code>, or else the
+            full type name; the content is JSON with the web defaults. Additive changes are safe; a breaking change is a
+            new type with a new name.</li>
+        <li><strong>An event without a handler</strong> fails the start when its assembly is scanned, and otherwise
+            throws from <code>Add</code> - the outbox would only park it.</li>
+        <li><strong>Operating it:</strong> <code>IOutboxMaintenance</code> lists and requeues parked messages;
+            <code>AddPhemeOutboxCheck</code> is <code>Degraded</code> while the oldest pending message is older than
+            5 minutes and <code>Unhealthy</code> while one is parked - wire it to alerts, not to the host's probes.</li>
+        <li><strong>One instance.</strong> The stores do not lock rows: run the processor in one instance of the
+            application. PostgreSQL only.</li>
+    </ul>
+    <p class="more">More: <a href="guide/08-integration-events/">Integration events and the outbox</a> ·
+        <a href="guide/09-operating-the-outbox/">Operating the outbox</a></p>
+</section>
+
+<!-- ============================================================ LAYERS -->
+<section id="layers">
+    <h2><span class="num">7</span>Layers</h2>
+    <p>Each layer references only what it needs of Pheme, and <code>PhemeLayerRule</code> of
+        <code>Pheme.Testing</code> keeps it so in an architecture test - for layers as assemblies or as folders of one
+        assembly.</p>
+    <div class="table-scroll">
+        <table>
+            <thead><tr><th>Layer</th><th>May use</th></tr></thead>
+            <tbody>
+                <tr><td>Domain</td><td>nothing from Pheme</td></tr>
+                <tr><td>Contracts (shared kernel)</td><td><code>Pheme.Abstractions</code>: integration events, commands one module sends another; not the store contracts</td></tr>
+                <tr><td>Application</td><td><code>Pheme.Abstractions</code>: messages, handlers, behaviors, <code>IOutboxWriter&lt;TModule&gt;</code></td></tr>
+                <tr><td>Infrastructure</td><td><code>Pheme.Abstractions</code>, <code>Pheme.EntityFrameworkCore</code>; <code>Pheme</code> to register the module's handlers</td></tr>
+                <tr><td>Composition root</td><td>everything: the pipeline, the outbox, <code>ISender</code>, maintenance</td></tr>
+            </tbody>
+        </table>
+    </div>
+<pre><code>[Theory]
+[MemberData(nameof(Assemblies))]
+public void An_assembly_keeps_the_rule_of_its_layer(string assembly, PhemeLayerRule rule) =&gt;
+    rule.Check(Assembly.Load(assembly));   <span class="c">// one exception listing every violation</span></code></pre>
+    <p class="more">More: <a href="guide/10-layers/">Layers</a></p>
+</section>
+
+<!-- ============================================================ TESTING -->
+<section id="testing">
+    <h2><span class="num">8</span>Testing</h2>
+    <p>Handlers are plain classes, unit tested without Pheme. Integration tests run the whole application against a real
+        database, and <code>Pheme.Testing</code> makes the outbox deterministic:</p>
+    <ol class="steps">
+        <li><strong>Deliver only when the test says so.</strong> <code>UsePhemeOutboxForTests()</code> turns the
+            processor off and retries failed messages at once.</li>
+        <li><strong>Send, drain, assert.</strong> <code>DrainOutbox()</code> delivers until nothing is left, events the
+            handlers wrote included, and throws for a failed message with its error.</li>
+        <li><strong>Read what was written.</strong> <code>GetOutboxEvents&lt;TEvent&gt;()</code> returns the events saved
+            in the outbox, in the order they occurred.</li>
+        <li><strong>Prove idempotency.</strong> <code>Redeliver&lt;TEvent&gt;(predicate)</code> makes processed events
+            pending again, so the next drain calls all their handlers once more.</li>
+    </ol>
+<pre><code>Guid orderId = await client.PlaceOrder();
+Assert.Single(await factory.Services.GetOutboxEvents&lt;OrderPlacedIntegrationEvent&gt;(), e =&gt; e.OrderId == orderId);
+
+await factory.Services.DrainOutbox();
+Assert.Equal(ShipmentStatus.Preparing, (await FindShipment(orderId))?.Status);</code></pre>
+    <p class="more">More: <a href="guide/11-testing/">Testing</a></p>
+</section>
+
+<!-- ============================================================ DIAGNOSTICS -->
+<section id="diagnostics">
+    <h2><span class="num">9</span>Tracing and metrics</h2>
+    <p>Every command, query, domain event and outbox delivery gets a span and a duration measurement, from the
+        <code>ActivitySource</code> and the <code>Meter</code> named <code>Pheme</code>. Nothing is recorded until
+        something listens:</p>
+<pre><code>builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =&gt; tracing.AddSource(PhemeDiagnostics.ActivitySourceName))
+    .WithMetrics(metrics =&gt; metrics.AddMeter(PhemeDiagnostics.MeterName));</code></pre>
+
+    <figure>
+        <div class="diagram">
+            <svg viewBox="0 0 760 250" role="img" aria-labelledby="trace-title">
+                <title id="trace-title">Two traces. The first: the HTTP request, inside it the span of PlaceOrderCommand, inside that the span of OrderPlacedDomainEvent and the database calls. The second, later: the delivery of ordering.order-placed, a consumer span with its own trace, linked to the span that wrote the message.</title>
+                <defs>
+                    <marker id="arr4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrow"/></marker>
+                </defs>
+                <text x="10" y="20" class="small">trace of the request</text>
+                <rect x="10" y="30" width="460" height="24" rx="4" class="bar-muted"/>
+                <text x="20" y="47">POST /orders</text>
+                <rect x="40" y="60" width="410" height="24" rx="4" class="bar"/>
+                <text x="50" y="77" class="on-bar">PlaceOrderCommand</text>
+                <rect x="90" y="90" width="230" height="24" rx="4" class="bar"/>
+                <text x="100" y="107" class="on-bar">OrderPlacedDomainEvent</text>
+                <rect x="330" y="90" width="100" height="24" rx="4" class="bar-muted"/>
+                <text x="340" y="107" class="small">db: save</text>
+                <rect x="120" y="120" width="90" height="20" rx="4" class="bar-muted"/>
+                <text x="128" y="134" class="small">db: stock</text>
+
+                <text x="10" y="176" class="small">a trace of its own, later</text>
+                <rect x="480" y="186" width="270" height="24" rx="4" class="bar-teal"/>
+                <text x="490" y="203" class="on-bar">ordering.order-placed</text>
+                <rect x="510" y="216" width="200" height="20" rx="4" class="bar-muted"/>
+                <text x="518" y="230" class="small">its handlers' work</text>
+
+                <path d="M205,114 C205,160 470,150 486,184" class="line dash" marker-end="url(#arr4)"/>
+                <text x="500" y="176" class="small">link: the TraceParent stored with the message</text>
+            </svg>
+        </div>
+        <figcaption>A delivery is a <code>Consumer</code> span named after the stored event name; it links to the span
+            that wrote the message instead of joining its trace, so one trace per request stays readable.</figcaption>
+    </figure>
+
+    <div class="table-scroll">
+        <table>
+            <thead><tr><th>Signal</th><th>Name</th><th>Tags</th></tr></thead>
+            <tbody>
+                <tr><td>span</td><td>full type name of the message or event; stored name of an integration event</td><td><code>pheme.message.type</code>, <code>pheme.message.kind</code>, <code>error.type</code> on failure</td></tr>
+                <tr><td>histogram</td><td><code>pheme.message.duration</code>, seconds</td><td><code>pheme.message.type</code>, <code>pheme.message.kind</code>, <code>error.type</code></td></tr>
+                <tr><td>gauge</td><td><code>pheme.outbox.messages</code></td><td><code>pheme.outbox.source</code>, <code>pheme.outbox.message.state</code></td></tr>
+                <tr><td>gauge</td><td><code>pheme.outbox.oldest_pending.age</code>, seconds</td><td><code>pheme.outbox.source</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="more">More: <a href="guide/12-tracing-and-metrics/">Tracing and metrics</a> ·
+        <a href="guide/06-request-logging/">Request logging</a></p>
+</section>
+
+<!-- ============================================================ CONFIGURATION -->
+<section id="configuration">
+    <h2><span class="num">10</span>Configuration</h2>
+    <p>Pheme does not read <code>IConfiguration</code> itself: every option is a property of an options class, set in
+        code, and bound from <code>appsettings.json</code> or an environment variable by the application, under a
+        section name of its choice. Properties not set keep their defaults; a wrong value throws when the section is
+        bound, and changes need a restart.</p>
+<pre><code>options.AddOutbox(outbox =&gt; builder.Configuration.GetSection("Outbox").Bind(outbox));
+options.AddRequestLogging(logging =&gt; builder.Configuration.GetSection("RequestLogging").Bind(logging));</code></pre>
+    <div class="table-scroll">
+        <table>
+            <thead><tr><th>Option</th><th>Default</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>OutboxOptions.PollingInterval</code></td><td>5 seconds</td><td>wait before looking for new messages</td></tr>
+                <tr><td><code>OutboxOptions.BatchSize</code></td><td>20</td><td>due messages read from each store at a time</td></tr>
+                <tr><td><code>OutboxOptions.MaxAttempts</code></td><td>10</td><td>failed attempts before a message is parked</td></tr>
+                <tr><td><code>OutboxOptions.RetryDelay</code></td><td>10 seconds</td><td>wait after the first failure, doubled after each next</td></tr>
+                <tr><td><code>OutboxOptions.MaxRetryDelay</code></td><td>15 minutes</td><td>longest wait between attempts</td></tr>
+                <tr><td><code>OutboxOptions.ProcessInBackground</code></td><td><code>true</code></td><td>hosted service delivers; <code>false</code> leaves it to <code>IOutboxRunner</code></td></tr>
+                <tr><td><code>OutboxOptions.ProcessedRetention</code></td><td>30 days</td><td>how long processed messages are kept; empty keeps them forever</td></tr>
+                <tr><td><code>OutboxOptions.RetentionLogLevel</code></td><td><code>Information</code></td><td>level of the log of each deletion of processed messages; <code>None</code> logs nothing</td></tr>
+                <tr><td><code>RequestLoggingOptions.SuccessLevel</code></td><td><code>Debug</code></td><td>level of the log of a handled message</td></tr>
+                <tr><td><code>RequestLoggingOptions.ExpectedFailureLevel</code></td><td><code>Information</code></td><td>level when handling fails with an expected exception</td></tr>
+                <tr><td><code>RequestLoggingOptions.UnexpectedFailureLevel</code></td><td><code>Error</code></td><td>level when handling fails with any other exception</td></tr>
+                <tr><td><code>PhemeDbContextOptions.MaxDomainEventRounds</code></td><td>10</td><td>rounds of domain event publication one save may run</td></tr>
+                <tr><td><code>PhemeDbContextOptions.OutboxSource</code></td><td>the context's name</td><td>name of the context's outbox, stored with its messages</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>Only in code, being methods and delegates: <code>IsExpected</code>, handler and behavior registration,
+        <code>CollectDomainEventsFrom</code>, <code>UseOutbox</code>, the parameters of
+        <code>AddPhemeOutboxCheck</code> and the exception factory of validation.</p>
+    <p class="more">More: <a href="guide/13-configuration/">Configuration</a></p>
+</section>
+
+<!-- ============================================================ LIMITATIONS -->
+<section id="limitations">
+    <h2><span class="num">11</span>Limitations</h2>
+    <ul>
+        <li>Registrations are validated from the <code>IServiceCollection</code>; handlers registered only in a
+            third-party container are reported as missing.</li>
+        <li>Handler wrappers are cached per message type for the life of the process, which keeps types of collectible
+            <code>AssemblyLoadContext</code>s alive.</li>
+        <li>The outbox of <code>Pheme.EntityFrameworkCore</code> supports PostgreSQL only, and its processor runs in one
+            instance of the application. Storage other than EF Core can implement <code>IOutboxStore</code>.</li>
+    </ul>
+    <p class="more">Why Pheme behaves this way: <a href="design/">Design decisions</a> · the code, class by class:
+        <a href="internals/">How Pheme works inside</a></p>
+</section>
+
+</main>
+
+<footer>
+    <div class="wrap">
+        Pheme · MIT licence · <a href="./">Documentation</a> ·
+        <a href="https://github.com/dawid1103/Pheme">github.com/dawid1103/Pheme</a>
+    </div>
+</footer>
+
+</body>
+</html>

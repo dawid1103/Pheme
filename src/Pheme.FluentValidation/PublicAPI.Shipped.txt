@@ -1,0 +1,4 @@
+#nullable enable
+Microsoft.Extensions.DependencyInjection.PhemeOptionsFluentValidationExtensions
+static Microsoft.Extensions.DependencyInjection.PhemeOptionsFluentValidationExtensions.AddFluentValidation(this Pheme.PhemeOptions! options) -> Pheme.PhemeOptions!
+static Microsoft.Extensions.DependencyInjection.PhemeOptionsFluentValidationExtensions.AddFluentValidation(this Pheme.PhemeOptions! options, System.Func<System.Collections.Generic.IReadOnlyList<FluentValidation.Results.ValidationFailure!>!, System.Exception!>! exceptionFactory) -> Pheme.PhemeOptions!

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Contracts of Pheme: commands, queries, their handlers, ISender, pipeline behaviors, domain event handlers, integration events with their handlers and outbox writer, and the contracts of outbox stores. No dependencies, for the application layer.</Description>
+    <RootNamespace>Pheme</RootNamespace>
+  </PropertyGroup>
+
+</Project>

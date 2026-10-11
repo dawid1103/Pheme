@@ -1,0 +1,48 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <!-- Overridden by the publish workflow with the version of the tag. -->
+    <VersionPrefix>2.1.0</VersionPrefix>
+    <Authors>Dawid Tomaszewski</Authors>
+    <Copyright>Copyright (c) 2026 Dawid Tomaszewski</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dawid1103/Pheme</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dawid1103/Pheme</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>cqrs;mediator;commands;queries;pipeline;domain-events;integration-events;outbox</PackageTags>
+    <PackageReleaseNotes>https://github.com/dawid1103/Pheme/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <!-- The PDB travels inside the assembly, so the package is one file and SourceLink needs no symbol server. -->
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Checks the package itself; after the first release, in CI, also compares it with the last release to catch
+         breaking changes (docs/development.md, "Releases"). -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+  </PropertyGroup>
+
+  <!-- Without the baseline, the suppressions of its breaking changes (CompatibilitySuppressions.xml) suppress nothing,
+       which would fail a local dotnet pack; CI, with the baseline, still fails on a stale one. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
+    <ApiCompatPermitUnnecessarySuppressions>true</ApiCompatPermitUnnecessarySuppressions>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+  <!-- Every change of the public API shows up in PublicAPI.Unshipped.txt, so it is visible in review. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+</Project>

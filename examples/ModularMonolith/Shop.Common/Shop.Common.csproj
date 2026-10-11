@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- Directory.Packages.props holds the libraries' lowest version; the example uses the newest. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" VersionOverride="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Pheme.Abstractions\Pheme.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

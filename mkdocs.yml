@@ -1,0 +1,73 @@
+# The documentation as a site: the same Markdown files that read on GitHub (docs/README.md is the contents),
+# built with Material for MkDocs (docs/development.md, "Documentation").
+site_name: Pheme
+site_description: Lightweight in-process messaging for .NET - commands, queries, pipeline behaviors, domain events and an outbox.
+site_url: https://dawid1103.github.io/Pheme/
+repo_url: https://github.com/dawid1103/Pheme
+repo_name: dawid1103/Pheme
+edit_uri: edit/master/docs/
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+validation:
+  links:
+    anchors: warn
+
+nav:
+  - Contents: README.md
+  - How Pheme works: how-it-works.html
+  - Guide:
+      - guide/01-installation.md
+      - guide/02-getting-started.md
+      - guide/03-commands-and-queries.md
+      - guide/04-pipeline-behaviors.md
+      - guide/05-validation.md
+      - guide/06-request-logging.md
+      - guide/07-domain-events.md
+      - guide/08-integration-events.md
+      - guide/09-operating-the-outbox.md
+      - guide/10-layers.md
+      - guide/11-testing.md
+      - guide/12-tracing-and-metrics.md
+      - guide/13-configuration.md
+      - guide/14-limitations.md
+  - Recipes:
+      - recipes/transactions.md
+      - recipes/authorization.md
+      - recipes/caching-queries.md
+      - recipes/idempotent-commands.md
+      - recipes/audit-trail.md
+  - More guides:
+      - consuming.md
+  - Behind the scenes:
+      - design.md
+      - internals.md
+      - development.md

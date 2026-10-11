@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- Off: pinning would hold the transitive EF Core and Microsoft.Extensions packages of the providers at the
+         libraries' lowest versions in Directory.Packages.props (NU1109). -->
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Brings Microsoft.Extensions.DependencyInjection too, in the version it needs; a direct reference to the
+         10.0.0 of Directory.Packages.props would be a downgrade (NU1605). -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <!-- The model of the outbox on PostgreSQL, built without a connection. -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Pheme\Pheme.csproj" />
+    <ProjectReference Include="..\..\src\Pheme.EntityFrameworkCore\Pheme.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\Pheme.EntityFrameworkCore.TestFixtures\Pheme.EntityFrameworkCore.TestFixtures.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Pheme.EntityFrameworkCore.TestFixtures" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

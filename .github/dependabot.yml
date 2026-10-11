@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    # The packages the libraries reference stay at the lowest version of the .NET 10 band, so their users are free to
+    # choose newer patches (docs/development.md, "Packages"). Version updates of these would raise that minimum;
+    # security updates are not affected by ignore.
+    ignore:
+      - dependency-name: Microsoft.EntityFrameworkCore
+      - dependency-name: Microsoft.EntityFrameworkCore.Relational
+      - dependency-name: Microsoft.Extensions.DependencyInjection.Abstractions
+      - dependency-name: Microsoft.Extensions.Diagnostics.HealthChecks
+      - dependency-name: Microsoft.Extensions.Hosting.Abstractions
+      - dependency-name: Microsoft.Extensions.Logging.Abstractions
+      - dependency-name: Microsoft.Extensions.Options
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
