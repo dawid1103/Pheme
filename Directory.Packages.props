@@ -16,7 +16,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
     <!-- Lowest version of the major release, for the same reason. -->
-    <PackageVersion Include="FluentValidation" Version="12.0.0" />
+    <PackageVersion Include="FluentValidation" Version="12.2.0" />
   </ItemGroup>
 
   <ItemGroup Label="Build">
