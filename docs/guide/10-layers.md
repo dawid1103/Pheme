@@ -12,7 +12,24 @@ architecture test:
 | Infrastructure | `Pheme.Abstractions`, `Pheme.EntityFrameworkCore`; `Pheme` to register the module's handlers (`AddPheme` with its assembly) | `Pheme.FluentValidation` |
 | Composition root | everything: `AddPheme` with the pipeline and the outbox, behaviors, `ISender`, `IOutboxMaintenance` | - |
 
-`PhemeLayerRule` of `Pheme.Testing` checks the rows of this table: `PhemeLayerRule.Domain`, `Contracts`, `Application`
+```mermaid
+flowchart LR
+    domain["Domain: nothing from Pheme"]
+    contracts["Contracts"] --> abstractions
+    application["Application"] --> abstractions
+    infrastructure["Infrastructure"] --> abstractions
+    infrastructure --> efcore
+    infrastructure -- "to register the module's handlers" --> pheme
+    root["Composition root"] -- everything --> packages
+    subgraph packages["Pheme packages"]
+        abstractions(["Pheme.Abstractions"])
+        efcore(["Pheme.EntityFrameworkCore"])
+        pheme(["Pheme"])
+        validation(["Pheme.FluentValidation"])
+    end
+```
+
+`PhemeLayerRule` of `Pheme.Testing` checks the rows of the table: `PhemeLayerRule.Domain`, `Contracts`, `Application`
 and `Infrastructure`. A Pheme package a rule does not allow, `Pheme.Testing` or one added later, is forbidden. Each
 check throws one `InvalidOperationException` listing every violation, with no test framework needed:
 

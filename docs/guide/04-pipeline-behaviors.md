@@ -79,6 +79,27 @@ options.AddBehavior(typeof(CommandTimingBehavior<,>));    // commands with a res
 options.AddFluentValidation(...);                         // inside the timing, so the time includes validation
 ```
 
+A command then goes in through the behaviors in the order they were added and comes back out the other way; the code
+before `await next(...)` runs on the way in, the code after it on the way out:
+
+```mermaid
+sequenceDiagram
+    participant S as ISender
+    participant L as Request logging
+    participant T as CommandTimingBehavior
+    participant V as Validation
+    participant H as Handler
+    S->>L: Send
+    L->>T: next
+    T->>V: next
+    Note over V: a failure throws here and the handler does not run
+    V->>H: next
+    H-->>V: response
+    V-->>T: response
+    T-->>L: response, Server-Timing added
+    L-->>S: response, logged with its time
+```
+
 A response of `POST /orders` then carries `Server-Timing: command;desc="PlaceOrderCommand";dur=12.3`. A failed
 command throws before the header is added, so only successful commands are timed.
 

@@ -193,16 +193,21 @@ The outbox supports the databases its tests pass on (`docs/design.md`, "Supporte
 - **The repository README is the package description** (`PackageReadmeFile`), shown by the feed outside the
   repository: what Pheme is, the packages, a quick start, and absolute links into the book. Everything else is in the
   book only, so a fact has one place.
+- **Diagrams** in the chapters are Mermaid blocks, which GitHub draws and the site draws through
+  `pymdownx.superfences` (configuration, not a plugin), in the colors of the theme in light and dark mode - so no
+  `classDef` with fixed colors. A diagram shows what the text next to it says, and `how-it-works.html` keeps its own
+  SVG diagrams.
 - **Links** between files of `docs/` are relative, so they work on GitHub and on the site; links to anything outside
   `docs/` (the example, `src/`, tests) are absolute to `master`, because the site resolves only the files of `docs/`.
   Every feature described has a use case in the example, and the snippets link to its files.
-- **The site:** `mkdocs.yml` with Material for MkDocs (MIT) - navigation, search, dark mode - with no plugins, theme
-  overrides or code of our own. `docs.yml` builds it with `--strict` (a broken link or anchor fails) for pushes to
-  `develop` and `master` and pull requests that change `docs/` or `mkdocs.yml`, in the image
-  `squidfunk/mkdocs-material` of a pinned version, and deploys it to GitHub Pages (`https://dawid1103.github.io/Pheme/`)
-  on such a push to `master` or when run by hand on `master`; the repository's Pages source is "GitHub Actions".
-  Locally, from the repository root:
-  `docker run --rm -it -p 8000:8000 -v "$PWD:/docs" squidfunk/mkdocs-material:9.7.7`, then `http://localhost:8000`.
+- **The site:** `mkdocs.yml` with Material for MkDocs (MIT) - navigation, search, dark mode, the indigo and teal of
+  `how-it-works.html` - with no plugins, theme overrides or code of our own: everything is configuration. The site is
+  linked from the repository README and the repository's About ("Website"). `docs.yml` builds it with `--strict` (a
+  broken link or anchor fails) for pushes to `develop` and `master` and pull requests that change `docs/` or
+  `mkdocs.yml`, in the image `squidfunk/mkdocs-material` of a pinned version, and deploys it to GitHub Pages
+  (`https://dawid1103.github.io/Pheme/`) on such a push to `master` or when run by hand on `master`; the repository's
+  Pages source is "GitHub Actions". Locally, from the repository root: `docker run --rm -it -p 8000:8000 -v "$PWD:/docs"
+  squidfunk/mkdocs-material:9.7.7`, then `http://localhost:8000`.
 - **Material for MkDocs is in maintenance mode** (since November 2025; its authors continue in Zensical, which reads
   `mkdocs.yml`), and MkDocs 2.0 will not run it - hence the pinned image, which carries MkDocs 1.x. Without plugins and
   overrides, moving to Zensical changes the build command, not the files. Rejected: DocFX (a .NET build for what are

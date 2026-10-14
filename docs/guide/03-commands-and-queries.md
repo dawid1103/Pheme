@@ -5,6 +5,20 @@ query reads state (`IQuery<TResponse>`). Both are sent through `ISender.Send`, t
 their handler: `ICommandHandler<TCommand>`, `ICommandHandler<TCommand, TResponse>` or
 `IQueryHandler<TQuery, TResponse>`.
 
+```mermaid
+sequenceDiagram
+    participant C as Caller
+    participant S as ISender (scoped)
+    participant B as Behaviors
+    participant H as Handler
+    C->>S: Send(message)
+    S->>B: the wrapper of the message type, built once and cached
+    B->>H: next(...), the handler resolved in the innermost step
+    H-->>B: response
+    B-->>C: the response, back out through every behavior
+    Note over C,H: an exception reaches the caller unchanged, never wrapped
+```
+
 - **One handler per message.** A message implements exactly one of `ICommand`, `ICommand<TResponse>` and
   `IQuery<TResponse>`, and has exactly one handler. One class may handle several messages.
 - **Checked at start-up.** Messages without a handler, messages with two handlers or two contracts, behaviors

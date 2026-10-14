@@ -4,7 +4,21 @@ The [example application](https://github.com/dawid1103/Pheme/blob/master/example
 integration events, retries and parks failed ones, and has an administration endpoint and a health check for them.
 
 An integration event (`IIntegrationEvent`) is written to the outbox table of its module in the same transaction as
-the change that raised it, and delivered later, in the background, to its `IIntegrationEventHandler<TEvent>` handlers.
+the change that raised it, and delivered later, in the background, to its `IIntegrationEventHandler<TEvent>` handlers:
+
+```mermaid
+sequenceDiagram
+    participant R as Request
+    participant DB as Module's database
+    participant P as Outbox processor
+    participant I as Integration event handlers
+    R->>DB: SaveChangesAsync: the change and the outbox message in one transaction
+    Note over R,DB: a save that fails writes neither
+    P->>DB: read a batch of due messages
+    P->>I: deliver, each handler in a scope of its own
+    P->>DB: save the outcome, in another new scope
+```
+
 `AddOutbox` adds the delivery; handlers are scanned with the others:
 
 ```csharp
@@ -99,6 +113,17 @@ contexts fails the start. A store reads and updates only the messages of its sou
 
 The outbox processor, a hosted service, reads a batch of due messages from every outbox store, delivers them one by
 one and saves each outcome:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending: written with the change
+    Pending --> Processed: all handlers completed
+    Pending --> Pending: a handler failed, the next attempt after a growing delay
+    Pending --> Parked: attempt MaxAttempts failed
+    Parked --> Pending: requeued with IOutboxMaintenance
+    Processed --> [*]: deleted after ProcessedRetention
+```
+
 
 - **At least once.** A message is processed when all its handlers have completed. A failed attempt records the
   error and the handlers that completed, and the next attempt calls only the others; a handler should still be

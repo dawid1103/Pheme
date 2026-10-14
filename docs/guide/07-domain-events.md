@@ -110,6 +110,17 @@ What `await db.SaveChangesAsync()` does, before Entity Framework Core writes any
 4. If the handlers raised further events, publishes those in the next round, up to `MaxDomainEventRounds`.
 5. Saves the changes of the entity and of all handlers, in one call and one transaction.
 
+```mermaid
+flowchart TD
+    save(["await db.SaveChangesAsync()"]) --> find["Find the tracked entities matching a CollectDomainEventsFrom type"]
+    find --> read["Read the events of each entity and clear them"]
+    read --> publish["Publish them one after another, each event's handlers in order, awaited"]
+    publish --> more{"Did the handlers raise further events?"}
+    more -- "yes: the next round, up to MaxDomainEventRounds" --> find
+    more -- no --> write["EF Core saves the entity and the changes of all handlers in one transaction"]
+    publish -. "a handler throws" .-> fail["The exception reaches the caller and nothing is saved"]
+```
+
 A handler that throws stops the rest, and the exception reaches the caller: nothing is saved. In the example, an order
 for more items than in stock answers 422 and saves neither the order nor what the earlier handlers changed
 ([`AllocateStockDomainEventHandler.cs`](https://github.com/dawid1103/Pheme/blob/master/examples/ModularMonolith/Ordering.Application/Inventory/AllocateStockDomainEventHandler.cs)).

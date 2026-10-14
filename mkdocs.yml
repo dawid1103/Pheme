@@ -10,20 +10,36 @@ docs_dir: docs
 
 theme:
   name: material
+  icon:
+    logo: material/bullhorn-outline
+    repo: fontawesome/brands/github
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
+    - content.action.edit
     - content.code.copy
     - navigation.indexes
     - navigation.sections
+    - navigation.tabs
     - navigation.top
+    - navigation.tracking
     - search.highlight
+    - search.suggest
+    - toc.follow
+  # The colors of docs/how-it-works.html: indigo, with teal for links and highlights.
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: indigo
+      accent: teal
       toggle:
         icon: material/brightness-7
         name: Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: indigo
+      accent: teal
       toggle:
         icon: material/brightness-4
         name: Light mode
@@ -35,7 +51,19 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.highlight
-  - pymdownx.superfences
+  # Mermaid blocks, which GitHub draws too, drawn by the theme in its colors.
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/dawid1103/Pheme
+    - icon: simple/nuget
+      link: https://www.nuget.org/packages/Pheme
 
 validation:
   links:

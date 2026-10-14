@@ -1,6 +1,7 @@
 # Pheme
 
 [![CI](https://github.com/dawid1103/Pheme/actions/workflows/ci.yml/badge.svg)](https://github.com/dawid1103/Pheme/actions/workflows/ci.yml)
+[![Docs](https://github.com/dawid1103/Pheme/actions/workflows/docs.yml/badge.svg)](https://dawid1103.github.io/Pheme/)
 
 Lightweight in-process messaging for .NET: commands, queries, pipeline behaviors, domain events and integration
 events through an outbox.
@@ -86,9 +87,11 @@ The rest - validation, request logging, the application's behaviors, domain even
 
 ## Documentation
 
-[The documentation](https://github.com/dawid1103/Pheme/blob/master/docs/README.md) is a book to read in order: a
-guide from installation to the outbox and tracing, recipes of pipeline behaviors (transactions,
-authorization, caching, idempotency, audit), and the design decisions behind it all.
+[The documentation](https://dawid1103.github.io/Pheme/) is a book to read in order: a guide from installation to the
+outbox and tracing, recipes of pipeline behaviors (transactions, authorization, caching, idempotency, audit), and the
+design decisions behind it all. The site has search and diagrams; the same pages read
+[on GitHub](https://github.com/dawid1103/Pheme/blob/master/docs/README.md), and
+[How Pheme works](https://dawid1103.github.io/Pheme/how-it-works.html) shows it all on one page.
 
 ## Example
 

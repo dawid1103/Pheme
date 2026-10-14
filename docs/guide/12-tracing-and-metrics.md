@@ -73,6 +73,21 @@ and the delivery starts a trace of its own with a link to it. Tracing backends s
 Insights and the Aspire dashboard show the link, so a slow or failing delivery leads to the request that caused it,
 and the other way round.
 
+In the example, the handler of `OrderPlacedDomainEvent` writes the message, so the delivery links to that span:
+
+```mermaid
+flowchart LR
+    subgraph request["The trace of the request"]
+        http["POST /orders"] --> command["PlaceOrderCommand"]
+        command --> domainEvent["OrderPlacedDomainEvent"]
+        command --> db["database calls"]
+    end
+    subgraph delivery["A trace of its own, later"]
+        consumer["ordering.order-placed, Consumer"] --> work["what its handlers do"]
+    end
+    consumer -. "link: the TraceParent stored with the message" .-> domainEvent
+```
+
 `TraceParent` is `null` when there was no current activity at the write, or when the current activity does not use the W3C id
 format (`Activity.DefaultIdFormat` is W3C from .NET 5); the delivery then has no link. Pheme only stores it and links
 to it. A custom `IOutboxStore` should keep the value with the message, and an application can read it from
