@@ -12,6 +12,9 @@ a use case in the example application.
   `ICommand<TResponse>` for commands with one, `IQuery<TResponse>` for queries, `IMessage` for all, or an interface of
   the application that the chosen messages implement, as in the recipes. Inside the pipeline a command without a
   response has `TResponse = Unit`.
+- **Not events:** behaviors wrap only commands and queries sent through `ISender`. Domain event handlers run inside
+  the save, so the behaviors of the command that saves - a transaction, request logging - wrap them too; integration
+  event handlers are called by the outbox processor, outside any pipeline.
 - **Registration:** pass the open generic type; Pheme closes it for every message its constraints accept.
 - **Order:** behaviors run in the order they were added, the first one outermost. Request logging is always outermost.
 - **Dependencies:** behaviors are resolved from the caller's scope, so they may take scoped services such as a

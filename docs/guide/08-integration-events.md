@@ -20,6 +20,21 @@ services.AddPheme(options => options
     }));
 ```
 
+## The calls at a glance
+
+The outbox is set up in several places, one per layer; the names are alike, the parts are not:
+
+| Call | Where | What it adds | Without it |
+| --- | --- | --- | --- |
+| `AddOutbox()` of `AddPheme` (`Pheme`) | composition root, once per application | the delivery: the outbox processor (a hosted service), `IOutboxRunner`, `IOutboxMaintenance`, `IOutboxMessageFactory`, and one `OutboxOptions` for all stores | integration event handlers and `UseOutbox` fail the start |
+| `AddPhemeDbContext<TContext>(...)` (`Pheme.EntityFrameworkCore`) | infrastructure, per `DbContext` (several calls add up) | nothing by itself: it holds what Pheme does with the context - `UseOutbox` and, independent of the outbox, `CollectDomainEventsFrom` | the context publishes and writes nothing |
+| `UseOutbox<TModule>()` of `AddPhemeDbContext` | infrastructure, once per module writing to the context | the writing: `IOutboxWriter<TModule>` bound to the context, and the context's `IOutboxStore`, which the processor reads | the module has no writer; `AddOutbox` without any store fails the start |
+| `modelBuilder.AddPhemeOutbox()` | `OnModelCreating` of the context | the table `outbox_messages`, created by the context's migrations | the first `Add` and the first use of the store fail |
+| the module marker, `public sealed class OrderingModule;` | application layer of the module | the address of the writer, `IOutboxWriter<OrderingModule>` | - |
+
+The outbox needs all of them. Domain events need only `AddPheme` and `CollectDomainEventsFrom` of
+`AddPhemeDbContext`.
+
 ## Writing
 
 Each `DbContext` that writes integration events maps the outbox table and names the modules writing to it;

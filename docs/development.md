@@ -160,7 +160,7 @@ The outbox supports the databases its tests pass on (`docs/design.md`, "Supporte
   build, unit tests, then integration tests (including the examples - `ubuntu-latest` has Docker) as a step of their
   own, so a failure says which kind failed (`--filter-trait "Category=..."`, "Tests"), pack as a run artifact, never
   pushed.
-- `docs.yml` builds the documentation site and deploys it by hand ("Documentation").
+- `docs.yml` builds the documentation site and deploys it from `master` ("Documentation").
 - `.github/dependabot.yml`: weekly updates of NuGet packages and actions. The packages the libraries reference are not
   updated this way (they stay at the lowest version of the band, "Packages"); security updates still arrive.
 - `ContinuousIntegrationBuild` is set from `GITHUB_ACTIONS`, so it also applies to `dotnet pack`.
@@ -199,9 +199,9 @@ The outbox supports the databases its tests pass on (`docs/design.md`, "Supporte
 - **The site:** `mkdocs.yml` with Material for MkDocs (MIT) - navigation, search, dark mode - with no plugins, theme
   overrides or code of our own. `docs.yml` builds it with `--strict` (a broken link or anchor fails) for pushes to
   `develop` and `master` and pull requests that change `docs/` or `mkdocs.yml`, in the image
-  `squidfunk/mkdocs-material` of a pinned version, and deploys to GitHub Pages only when run by hand: Pages of a
-  private repository needs a paid plan, and the site would be public anyway. Once the repository is public, the
-  workflow gets a deploy on a push to `master`. Locally, from the repository root:
+  `squidfunk/mkdocs-material` of a pinned version, and deploys it to GitHub Pages (`https://dawid1103.github.io/Pheme/`)
+  on such a push to `master` or when run by hand on `master`; the repository's Pages source is "GitHub Actions".
+  Locally, from the repository root:
   `docker run --rm -it -p 8000:8000 -v "$PWD:/docs" squidfunk/mkdocs-material:9.7.7`, then `http://localhost:8000`.
 - **Material for MkDocs is in maintenance mode** (since November 2025; its authors continue in Zensical, which reads
   `mkdocs.yml`), and MkDocs 2.0 will not run it - hence the pinned image, which carries MkDocs 1.x. Without plugins and
