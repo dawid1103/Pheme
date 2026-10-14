@@ -1,8 +1,7 @@
 name: Docs
 
-# Builds the documentation site from docs/ (mkdocs.yml) with broken links and anchors as errors. Deploying to GitHub
-# Pages is manual while the repository is private: Pages of a private repository needs a paid plan, and the site would
-# be public anyway (docs/development.md, "Documentation").
+# Builds the documentation site from docs/ (mkdocs.yml) with broken links and anchors as errors, and deploys it to
+# GitHub Pages from master: on a push that changes the site, or when run by hand (docs/development.md, "Documentation").
 on:
   push:
     branches: [develop, master]
@@ -36,13 +35,13 @@ jobs:
           build --strict --site-dir /docs/site
 
       - uses: actions/upload-pages-artifact@v5
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         with:
           path: site/
 
   deploy:
     name: Deploy
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
