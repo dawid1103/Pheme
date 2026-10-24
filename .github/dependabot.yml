@@ -2,6 +2,7 @@ version: 2
 updates:
   - package-ecosystem: nuget
     directory: /
+    target-branch: develop
     schedule:
       interval: weekly
     # The packages the libraries reference stay at the lowest version of the .NET 10 band, so their users are free to
@@ -19,5 +20,6 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    target-branch: develop
     schedule:
       interval: weekly

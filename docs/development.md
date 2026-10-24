@@ -161,8 +161,10 @@ The outbox supports the databases its tests pass on (`docs/design.md`, "Supporte
   own, so a failure says which kind failed (`--filter-trait "Category=..."`, "Tests"), pack as a run artifact, never
   pushed.
 - `docs.yml` builds the documentation site and deploys it from `master` ("Documentation").
-- `.github/dependabot.yml`: weekly updates of NuGet packages and actions. The packages the libraries reference are not
-  updated this way (they stay at the lowest version of the band, "Packages"); security updates still arrive.
+- `.github/dependabot.yml`: weekly updates of NuGet packages and actions, as pull requests to `develop`
+  (`target-branch`; GitHub reads the file from `master`, and security updates always target `master`). The packages
+  the libraries reference are not updated this way (they stay at the lowest version of the band, "Packages");
+  security updates still arrive.
 - `ContinuousIntegrationBuild` is set from `GITHUB_ACTIONS`, so it also applies to `dotnet pack`.
 - Workflows have `contents: read` and `persist-credentials: false`; they write nothing to the repository.
 - `publish.yml`: a tag `v*` on a commit of `master` (checked, otherwise the run fails) tests, packs with the version
