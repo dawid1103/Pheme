@@ -9,6 +9,7 @@ updates:
     # choose newer patches (docs/development.md, "Packages"). Version updates of these would raise that minimum;
     # security updates are not affected by ignore.
     ignore:
+      - dependency-name: FluentValidation
       - dependency-name: Microsoft.EntityFrameworkCore
       - dependency-name: Microsoft.EntityFrameworkCore.Relational
       - dependency-name: Microsoft.Extensions.DependencyInjection.Abstractions
@@ -16,6 +17,10 @@ updates:
       - dependency-name: Microsoft.Extensions.Hosting.Abstractions
       - dependency-name: Microsoft.Extensions.Logging.Abstractions
       - dependency-name: Microsoft.Extensions.Options
+      # Referenced by Pheme.UnitTests, which pins the libraries' transitive packages: a newer patch would need a newer
+      # Microsoft.Extensions.DependencyInjection.Abstractions than the pinned 10.0.0 (NU1109).
+      - dependency-name: Microsoft.Extensions.DependencyInjection
+      - dependency-name: Microsoft.Extensions.Diagnostics
     open-pull-requests-limit: 5
 
   - package-ecosystem: github-actions

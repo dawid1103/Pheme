@@ -164,7 +164,10 @@ The outbox supports the databases its tests pass on (`docs/design.md`, "Supporte
 - `.github/dependabot.yml`: weekly updates of NuGet packages and actions, as pull requests to `develop`
   (`target-branch`; GitHub reads the file from `master`, and security updates always target `master`). The packages
   the libraries reference are not updated this way (they stay at the lowest version of the band, "Packages");
-  security updates still arrive.
+  security updates still arrive. Neither are `Microsoft.Extensions.DependencyInjection` and
+  `Microsoft.Extensions.Diagnostics` of `Pheme.UnitTests`: with transitive pinning a newer patch fails restore (NU1109).
+  The ignore list goes by package name, so the example's `VersionOverride` of `Microsoft.EntityFrameworkCore.Relational`
+  is updated by hand.
 - `ContinuousIntegrationBuild` is set from `GITHUB_ACTIONS`, so it also applies to `dotnet pack`.
 - Workflows have `contents: read` and `persist-credentials: false`; they write nothing to the repository.
 - `publish.yml`: a tag `v*` on a commit of `master` (checked, otherwise the run fails) tests, packs with the version

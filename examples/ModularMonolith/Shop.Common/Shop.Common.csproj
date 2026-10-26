@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <!-- Directory.Packages.props holds the libraries' lowest version; the example uses the newest. -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" VersionOverride="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" VersionOverride="10.0.14" />
   </ItemGroup>
 
   <ItemGroup>
