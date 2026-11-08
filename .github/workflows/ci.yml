@@ -28,7 +28,7 @@ jobs:
           persist-credentials: false
 
       # SDK version comes from global.json.
-      - uses: actions/setup-dotnet@v6
+      - uses: actions/setup-dotnet@v6.1.0
 
       # Package versions live only in Directory.Packages.props (CPM), so it keys the cache.
       - uses: actions/cache@v6
